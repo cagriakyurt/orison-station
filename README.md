@@ -136,6 +136,42 @@ sudo systemctl start orison-web.service
 
 ---
 
+## 🛠️ Yerel Geliştirme, Senkronizasyon ve Git Komutları
+
+Bilgisayarınızda (yerelde) yaptığınız kod değişikliklerini test etmek, Pi'ye aktarmak ve GitHub'a yüklemek için aşağıdaki iş akışı komutlarını kullanabilirsiniz:
+
+### 1. Değişiklikleri Raspberry Pi'ye Göndermek (Sync)
+Yerelde (MacBook üzerinde) yaptığınız tüm geliştirmeleri tek komutla Raspberry Pi'ye yüklemek ve web servisini otomatik yeniden başlatmak için dizin dışındaki `ssh_sync.py` betiğini çalıştırabilirsiniz:
+```bash
+python3 /Users/cagri/.gemini/antigravity/scratch/ssh_sync.py
+```
+
+### 2. Değişiklikleri GitHub'a Yüklemek (Commit & Push)
+Yerel bilgisayarınızda yaptığınız güncellemeleri GitHub deponuza göndermek için:
+```bash
+# Proje dizinine girin
+cd /Users/cagri/.gemini/antigravity/scratch/orison
+
+# Değişiklikleri Git takibine ekleyin (.gitignore gereksiz dosyaları otomatik süzecektir)
+git add .
+
+# Değişikliği açıklayarak commit edin
+git commit -m "yapılan güncellemenin açıklaması"
+
+# GitHub'a gönderin
+git push
+```
+
+### 3. Raspberry Pi Üzerinde Değişiklikleri Güncellemek (Pull)
+Eğer Pi üzerindeki projeyi GitHub üzerinden güncellemek isterseniz:
+```bash
+cd ~/station
+git pull
+```
+*Not: Pull işleminden sonra güncel kodların devreye girmesi için `./install.sh` dosyasını tekrar çalıştırabilir veya servisi `sudo systemctl restart orison-web.service` ile yeniden başlatabilirsiniz.*
+
+---
+
 ## 👨‍💻 Geliştirici Bilgisi
 
 Bu proje, Raspberry Pi tabanlı taktiksel haberleşme ve simülasyon sistemleri için geliştirilmiş retro CRT temalı bağımsız bir radyo istasyon terminalidir.
