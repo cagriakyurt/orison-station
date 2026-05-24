@@ -1,5 +1,7 @@
 # ORISON // Taktik Radyo Terminali & FM RDS İstasyonu
 
+![ORISON Dashboard](web/static/dashboard.png)
+
 ORISON, Raspberry Pi'nin donanımsal DMA (Direct Memory Access) motorunu kullanarak GPIO pinleri üzerinden doğrudan FM yayını ve dinamik RDS (Radio Data System) verisi iletmesini sağlayan, mobil öncelikli (PWA) modern bir web kontrol terminalidir.
 
 Bu proje, **PiFmRds** çekirdeğini taban alarak üzerine gelişmiş ses sentezleme (text-to-speech), Mors kodu üreteci, dijital bant geçiren ses filtre efektleri ve parazit simülasyonları ekler.
