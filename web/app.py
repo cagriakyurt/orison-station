@@ -327,7 +327,7 @@ def trigger_action():
         
     # 1. Broadcaster Stop Command
     if action == "stop":
-        run_sync(["sudo", "/usr/bin/pkill", "-INT", "pi_fm_rds"])
+        run_sync(["sudo", "/usr/local/bin/orison-stop"])
         run_sync(["pkill", "-f", "orison-broadcast"])
         run_sync(["pkill", "-f", "orison"])
         success = True

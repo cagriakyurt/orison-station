@@ -39,7 +39,8 @@ fi
 echo "Installing CLI commands to /usr/local/bin..."
 sudo cp scripts/orison /usr/local/bin/orison
 sudo cp scripts/orison-broadcast /usr/local/bin/orison-broadcast
-sudo chmod +x /usr/local/bin/orison /usr/local/bin/orison-broadcast
+sudo cp scripts/orison-stop /usr/local/bin/orison-stop
+sudo chmod +x /usr/local/bin/orison /usr/local/bin/orison-broadcast /usr/local/bin/orison-stop
 
 # 6. Install Sudoers configuration from template
 echo "Installing sudoers policy from template..."

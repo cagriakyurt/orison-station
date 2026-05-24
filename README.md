@@ -114,14 +114,21 @@ cd ~/station
 # 1. Betiklerin kopyalanması ve izinlerinin verilmesi
 sudo cp scripts/orison /usr/local/bin/orison
 sudo cp scripts/orison-broadcast /usr/local/bin/orison-broadcast
-sudo chmod +x /usr/local/bin/orison /usr/local/bin/orison-broadcast
+sudo cp scripts/orison-stop /usr/local/bin/orison-stop
+sudo chmod +x /usr/local/bin/orison /usr/local/bin/orison-broadcast /usr/local/bin/orison-stop
 
-# 2. Şifresiz verici kontrolü (pkill/systemctl) yetkisini sudoers'a tanımlayın
-sudo cp sudoers/orison /etc/sudoers.d/orison
+# 2. Şifresiz verici kontrolü yetkisini şablondan kurun (visudo kontrolü ile)
+sed "s|{{USER}}|$USER|g; s|{{HOME}}|$HOME|g" sudoers/orison.template > /tmp/orison-sudoers
+sudo chmod 440 /tmp/orison-sudoers
+sudo visudo -cf /tmp/orison-sudoers
+sudo cp /tmp/orison-sudoers /etc/sudoers.d/orison
 sudo chmod 440 /etc/sudoers.d/orison
+sudo rm -f /tmp/orison-sudoers
 
-# 3. Web panelinin Pi açıldığında otomatik başlaması için servisi kurun
-sudo cp systemd/orison-web.service /etc/systemd/system/orison-web.service
+# 3. Web panelinin Pi açıldığında otomatik başlaması için servisi şablondan kurun
+sed "s|{{USER}}|$USER|g; s|{{BASE_DIR}}|$PWD|g" systemd/orison-web.service.template > /tmp/orison-web.service
+sudo cp /tmp/orison-web.service /etc/systemd/system/orison-web.service
+sudo rm -f /tmp/orison-web.service
 sudo systemctl daemon-reload
 sudo systemctl enable orison-web.service
 sudo systemctl start orison-web.service

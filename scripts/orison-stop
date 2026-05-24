@@ -1,0 +1,3 @@
+#!/bin/bash
+# orison-stop: Gracefully terminates the PiFmRds broadcast transmitter process
+/usr/bin/pkill -INT -x pi_fm_rds

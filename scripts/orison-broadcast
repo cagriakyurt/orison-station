@@ -36,7 +36,7 @@ RT=$(echo "$RT" | cut -c 1-64)
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting FM Broadcast on ${FREQ} MHz (RDS PS: ${PS}, RT: ${RT})..." >> "$LOG_FILE"
 
 # Pre-emptive cleanup: ensure no other instances of pi_fm_rds are running
-sudo pkill -INT pi_fm_rds 2>/dev/null
+sudo /usr/local/bin/orison-stop 2>/dev/null
 sleep 0.2
 
 # Check if WAV exists
@@ -48,7 +48,7 @@ fi
 # Define cleanup function to cleanly deactivate DMA engine and restore GPIO
 cleanup() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Stopping FM Broadcast (received signal)..." >> "$LOG_FILE"
-    sudo pkill -INT pi_fm_rds 2>/dev/null
+    sudo /usr/local/bin/orison-stop 2>/dev/null
     exit 0
 }
 
@@ -67,7 +67,7 @@ if [ -n "$DURATION" ]; then
         sleep "$DURATION"
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Duration (${DURATION}s) limit reached. Stopping broadcast..." >> "$LOG_FILE"
         kill -INT "$PID" 2>/dev/null
-        sudo pkill -INT pi_fm_rds 2>/dev/null
+        sudo /usr/local/bin/orison-stop 2>/dev/null
     ) &
 fi
 
