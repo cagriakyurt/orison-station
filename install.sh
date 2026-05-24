@@ -2,6 +2,8 @@
 # install.sh: ORISON installation and deployment script for Raspberry Pi
 
 set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 echo "=== ORISON Installation Script ==="
 
@@ -32,7 +34,7 @@ if [ "$CURRENT_USER" != "host" ]; then
     # Also replace systemd user execution context
     sed -i "s/User=host/User=$CURRENT_USER/g" systemd/orison-web.service
     # Replace sudoers authorization context
-    sed -i "s/^host ALL/ $CURRENT_USER ALL/g" sudoers/orison
+    sed -i "s/^host ALL/$CURRENT_USER ALL/g" sudoers/orison
     
     echo "Paths updated successfully."
 fi
@@ -61,8 +63,12 @@ sudo chmod +x /usr/local/bin/orison /usr/local/bin/orison-broadcast
 
 # 6. Install Sudoers configuration
 echo "Installing sudoers policy..."
-sudo cp sudoers/orison /etc/sudoers.d/orison
+sudo cp sudoers/orison /tmp/orison-sudoers
+sudo chmod 440 /tmp/orison-sudoers
+sudo visudo -cf /tmp/orison-sudoers
+sudo cp /tmp/orison-sudoers /etc/sudoers.d/orison
 sudo chmod 440 /etc/sudoers.d/orison
+sudo rm -f /tmp/orison-sudoers
 
 # 7. Install Systemd service
 echo "Installing systemd service..."
