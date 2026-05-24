@@ -5,6 +5,9 @@ import subprocess
 import datetime
 import threading
 import wave
+import sqlite3
+import json
+import time
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 
 app = Flask(__name__)
@@ -15,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
 ACTIONS_LOG = os.path.join(BASE_DIR, "web", "actions.log")
 WAV_PATH = os.path.join(TMP_DIR, "orison_radio.wav")
+DB_PATH = os.path.join(BASE_DIR, "orison.db")
 
 ORISON_BIN = "/usr/local/bin/orison"
 BROADCAST_BIN = "/usr/local/bin/orison-broadcast"
@@ -24,6 +28,24 @@ os.makedirs(TMP_DIR, exist_ok=True)
 if not os.path.exists(ACTIONS_LOG):
     with open(ACTIONS_LOG, "w") as f:
         f.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Log initialized.\n")
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS schedules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            scheduled_time TEXT NOT NULL,
+            action_type TEXT NOT NULL,
+            params TEXT NOT NULL,
+            status TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+init_db()
 
 def is_broadcasting():
     """Checks if the pi_fm_rds process is active in the system."""
@@ -253,6 +275,141 @@ def compile_and_broadcast_sequence_thread(sequence, ps, rt, noise, filter_mode, 
         start_new_session=True
     )
     log_file.close()
+
+def execute_schedule_broadcast(action_type, params):
+    """Executes a scheduled broadcast, first preempting any currently active broadcast."""
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_file = open(ACTIONS_LOG, "a")
+    log_file.write(f"[{timestamp}] SCHEDULED BROADCAST TRIGGERED: Type={action_type}\n")
+    log_file.flush()
+
+    # Preemption: stop running broadcast processes
+    subprocess.run(["sudo", "/usr/local/bin/orison-stop"])
+    subprocess.run(["pkill", "-f", "orison-broadcast"])
+    subprocess.run(["pkill", "-f", "orison"])
+
+    # Extract parameters
+    ps = params.get("ps", "ORISON").strip()
+    rt = params.get("rt", "ATTENTION").strip()
+    noise = params.get("noise") == True
+    filter_mode = params.get("filter", "am").strip()
+    morse_freq = str(params.get("morse_freq", "650")).strip()
+    morse_speed = str(params.get("morse_speed", "0.09")).strip()
+    freq = str(params.get("freq", "107.9")).strip()
+
+    # Sanitize
+    ps = "".join(c for c in ps if c.isalnum()).upper()[:8]
+    if not ps: ps = "ORISON"
+    rt = rt[:64]
+    if not rt: rt = "ATTENTION"
+
+    extra_args = [
+        "--ps", ps,
+        "--rt", rt,
+        "--filter", filter_mode,
+        "--morse-freq", morse_freq,
+        "--morse-speed", morse_speed,
+        "--freq", freq
+    ]
+    if noise:
+        extra_args.append("--noise")
+
+    if action_type == "sequence":
+        sequence = params.get("sequence", [])
+        if not sequence:
+            log_file.write("  ERROR: Empty sequence in scheduled task.\n")
+            log_file.write("--------------------------------------------------\n")
+            log_file.close()
+            return False
+        
+        threading.Thread(
+            target=compile_and_broadcast_sequence_thread,
+            args=(sequence, ps, rt, noise, filter_mode, morse_freq, morse_speed, freq),
+            daemon=True
+        ).start()
+        log_file.close()
+        return True
+
+    elif action_type == "id":
+        cmd = [ORISON_BIN, "id"] + extra_args
+    elif action_type == "numbers":
+        count = str(params.get("count", "12"))
+        cmd = [ORISON_BIN, "numbers", count] + extra_args
+    elif action_type == "say":
+        text = params.get("text", "").strip()[:500]
+        cmd = [ORISON_BIN, "say", text] + extra_args
+    elif action_type == "morse":
+        text = params.get("text", "ORISON ATTENTION").strip()[:500]
+        cmd = [ORISON_BIN, "morse", text] + extra_args
+    else:
+        log_file.write(f"  ERROR: Unknown scheduled action type {action_type}\n")
+        log_file.write("--------------------------------------------------\n")
+        log_file.close()
+        return False
+
+    cmd_str = " ".join(cmd)
+    try:
+        log_file.write(f"  Executing scheduled background action: {cmd_str}\n")
+        log_file.flush()
+        subprocess.Popen(
+            cmd,
+            stdout=log_file,
+            stderr=log_file,
+            start_new_session=True
+        )
+        log_file.close()
+        return True
+    except Exception as e:
+        log_file.write(f"  LAUNCH FAILED: {str(e)}\n")
+        log_file.write("--------------------------------------------------\n")
+        log_file.close()
+        return False
+
+def scheduler_loop():
+    """Background polling loop querying the SQLite database for pending schedules."""
+    while True:
+        try:
+            now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM schedules WHERE status = 'pending' AND scheduled_time <= ?",
+                (now_str,)
+            )
+            rows = cursor.fetchall()
+            
+            for row in rows:
+                sched_id = row['id']
+                action_type = row['action_type']
+                try:
+                    params = json.loads(row['params'])
+                except Exception:
+                    params = {}
+                
+                # Update status immediately to prevent duplicate triggers
+                cursor.execute(
+                    "UPDATE schedules SET status = 'completed' WHERE id = ?",
+                    (sched_id,)
+                )
+                conn.commit()
+                
+                success = execute_schedule_broadcast(action_type, params)
+                if not success:
+                    cursor.execute(
+                        "UPDATE schedules SET status = 'failed' WHERE id = ?",
+                        (sched_id,)
+                    )
+                    conn.commit()
+            conn.close()
+        except Exception as e:
+            try:
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                with open(ACTIONS_LOG, "a") as f:
+                    f.write(f"[{timestamp}] SCHEDULER ERROR: {str(e)}\n")
+            except Exception:
+                pass
+        time.sleep(5)
 
 @app.route("/")
 def index():
@@ -518,6 +675,79 @@ def live_status():
         "wav_exists": os.path.exists(WAV_PATH)
     })
 
+@app.route("/api/schedules")
+def get_schedules():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM schedules WHERE status = 'pending' ORDER BY scheduled_time ASC LIMIT 50"
+        )
+        pending = [dict(row) for row in cursor.fetchall()]
+        cursor.execute(
+            "SELECT * FROM schedules WHERE status != 'pending' ORDER BY scheduled_time DESC LIMIT 10"
+        )
+        history = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return jsonify({"success": True, "pending": pending, "history": history})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route("/api/schedules/add", methods=["POST"])
+def add_schedule():
+    data = request.json
+    if not data:
+        return jsonify({"success": False, "message": "No payload provided."}), 400
+        
+    scheduled_time_str = data.get("scheduled_time")
+    action_type = data.get("action_type")
+    params = data.get("params")
+    
+    if not scheduled_time_str or not action_type or params is None:
+        return jsonify({"success": False, "message": "Missing required fields."}), 400
+        
+    try:
+        if "T" in scheduled_time_str:
+            dt = datetime.datetime.fromisoformat(scheduled_time_str)
+        else:
+            dt = datetime.datetime.strptime(scheduled_time_str, "%Y-%m-%d %H:%M:%S")
+            
+        now = datetime.datetime.now()
+        if dt <= now:
+            return jsonify({"success": False, "message": "Zamanlanmış vakit geçmişte olamaz."}), 400
+            
+        db_time_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+        created_at_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO schedules (scheduled_time, action_type, params, status, created_at) VALUES (?, ?, ?, 'pending', ?)",
+            (db_time_str, action_type, json.dumps(params), created_at_str)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "Yayın başarıyla zamanlandı."})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Hata: {str(e)}"}), 500
+
+@app.route("/api/schedules/delete/<int:sched_id>", methods=["POST"])
+def delete_schedule(sched_id):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM schedules WHERE id = ? AND status = 'pending'", (sched_id,))
+        rows_deleted = cursor.rowcount
+        conn.commit()
+        conn.close()
+        if rows_deleted > 0:
+            return jsonify({"success": True, "message": "Zamanlanmış yayın iptal edildi."})
+        else:
+            return jsonify({"success": False, "message": "Zamanlanmış yayın bulunamadı ya da zaten çalıştırıldı."}), 404
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @app.route("/manifest.json")
 def serve_manifest():
     return send_from_directory("static", "manifest.json")
@@ -527,4 +757,6 @@ def serve_sw():
     return send_from_directory("static", "sw.js", mimetype="application/javascript")
 
 if __name__ == "__main__":
+    # Start scheduler background thread
+    threading.Thread(target=scheduler_loop, daemon=True).start()
     app.run(host="0.0.0.0", port=8765, debug=False)
