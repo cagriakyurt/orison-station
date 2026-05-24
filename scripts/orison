@@ -7,8 +7,8 @@ import struct
 import wave
 import subprocess
 
-# Base configuration paths
-BASE_DIR = "/home/host/station"
+# Base configuration paths dynamically determined (following symlinks)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
 BROADCAST_BIN = "/usr/local/bin/orison-broadcast"
 

@@ -1,0 +1,1 @@
+{{USER}} ALL=(ALL) NOPASSWD: {{HOME}}/PiFmRds/src/pi_fm_rds, /usr/bin/pkill, /usr/bin/systemctl, /usr/bin/ln

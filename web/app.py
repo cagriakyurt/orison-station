@@ -10,7 +10,8 @@ from flask import Flask, render_template, request, jsonify, send_file, send_from
 app = Flask(__name__)
 
 # Constants
-BASE_DIR = "/home/host/station"
+# Determine base directory dynamically based on app.py location (following symlinks)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
 ACTIONS_LOG = os.path.join(BASE_DIR, "web", "actions.log")
 WAV_PATH = os.path.join(TMP_DIR, "orison_radio.wav")

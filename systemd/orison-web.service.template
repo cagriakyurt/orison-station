@@ -3,9 +3,9 @@ Description=ORISON Flask Web UI
 After=network.target
 
 [Service]
-User=host
-WorkingDirectory=/home/host/station/web
-ExecStart=/usr/bin/python3 /home/host/station/web/app.py
+User={{USER}}
+WorkingDirectory={{BASE_DIR}}/web
+ExecStart=/usr/bin/python3 {{BASE_DIR}}/web/app.py
 Restart=always
 RestartSec=5
 

@@ -2,10 +2,14 @@
 # orison-broadcast: Manages FM broadcasting via PiFmRds with dynamic RDS support
 
 # Configuration
-WAV_PATH="/home/host/station/tmp/orison_radio.wav"
-PI_FM_RDS="/home/host/PiFmRds/src/pi_fm_rds"
+# Determine directories dynamically based on script location (following symlinks)
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+BASE_DIR="$(dirname "$SCRIPT_DIR")"
+WAV_PATH="$BASE_DIR/tmp/orison_radio.wav"
+PI_FM_RDS="$HOME/PiFmRds/src/pi_fm_rds"
 FREQ="107.9"
-LOG_FILE="/home/host/station/web/actions.log"
+LOG_FILE="$BASE_DIR/web/actions.log"
 
 # Default RDS Values
 PS="ORISON"
