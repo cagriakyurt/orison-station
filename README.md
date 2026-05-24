@@ -46,35 +46,69 @@ orison/
 
 ## ⚙️ Kurulum ve Dağıtım (Raspberry Pi Üzerinde)
 
-### 1. Gereksinimlerin Yüklenmesi
-Sistemde **Sox** (ses birleştirme/filtreleme için) ve **espeak-ng** (ses sentezleme için) kütüphanelerinin kurulu olması gerekir:
+> [!IMPORTANT]
+> **Kullanıcı Adı Notu:** Projedeki varsayılan yollar `/home/host/...` kullanıcısına göre yapılandırılmıştır. Eğer yeni Pi'deki kullanıcı adınız `host` değilse (örneğin standart `pi` ise), kuruluma başlamadan önce **Adım 4**'teki kullanıcı adı güncelleme komutunu mutlaka çalıştırmalısınız.
+
+### Adım 1: Temel Bağımlılıkların Yüklenmesi
+Yeni Pi üzerinde terminali açın ve ses sentezleme, filtreleme ve web servis araçlarını yükleyin:
 ```bash
 sudo apt-get update
-sudo apt-get install sox libsox-fmt-all espeak-ng sshpass -y
+sudo apt-get install git sox libsox-fmt-all espeak-ng python3-pip python3-flask -y
 ```
 
-Ayrıca Raspberry Pi üzerinde **PiFmRds** deposunun klonlanmış ve derlenmiş olması gerekmektedir. Proje varsayılan olarak `/home/host/PiFmRds/src/pi_fm_rds` yolundaki verici dosyasını arar.
+### Adım 2: PiFmRds Çekirdeğinin Derlenmesi
+Radyo dalgalarını üreten çekirdek kütüphaneyi Pi üzerine klonlayıp derleyin:
+```bash
+# Depoyu kullanıcı dizinine klonlayın
+cd ~
+git clone https://github.com/ChristopheJacquet/PiFmRds.git
 
-### 2. Betiklerin ve Servisin Kurulması
-CLI betiklerinin global komut olarak çalışabilmesi için symlink oluşturulmalı ve systemd servisi aktif edilmelidir:
+# Derleme işlemini başlatın
+cd PiFmRds/src
+make
+```
+*Bu işlem sonucunda `/home/KULLANICI_ADI/PiFmRds/src/pi_fm_rds` yolunda çalıştırılabilir çekirdek dosya oluşacaktır.*
+
+### Adım 3: ORISON Projesinin GitHub'dan Çekilmesi
+Kendi oluşturduğunuz GitHub deposunu Pi'ye klonlayın:
+```bash
+cd ~
+git clone https://github.com/cagriakyurt/orison-station.git station
+```
+
+### Adım 4: Kullanıcı Adı Güncellemesi (Gerekliyse)
+Eğer yeni Pi'deki kullanıcı adınız `host` **değilse** (örneğin `pi` ise), proje dosyalarındaki tüm `host` yollarını yeni kullanıcı adınızla değiştirmek için şu komutu çalıştırın:
+```bash
+cd ~/station
+# 'host' yerine kendi kullanıcı adınızı yazın (örn: 'pi')
+find . -type f -not -path '*/.*' -exec sed -i 's/home\/host/home\/pi/g' {} +
+```
+
+### Adım 5: Sistem Ayarlarını ve Servisleri Kurun
+CLI betiklerinin global komut olarak tanımlanması, çalışma izinleri ve web panelinin Pi açıldığında otomatik başlaması için servis kurulumu:
 
 ```bash
-# Betiklerin kopyalanması ve izinlerinin verilmesi
+cd ~/station
+
+# 1. Betiklerin kopyalanması ve izinlerinin verilmesi
 sudo cp scripts/orison /usr/local/bin/orison
 sudo cp scripts/orison-broadcast /usr/local/bin/orison-broadcast
 sudo chmod +x /usr/local/bin/orison /usr/local/bin/orison-broadcast
 
-# Sudoers izninin verilmesi (Şifresiz verici başlatma/durdurma için)
+# 2. Şifresiz verici kontrolü (pkill/systemctl) yetkisini sudoers'a tanımlayın
 sudo cp sudoers/orison /etc/sudoers.d/orison
+sudo chmod 440 /etc/sudoers.d/orison
 
-# Systemd servisinin kurulması ve başlatılması
+# 3. Web panelinin Pi açıldığında otomatik başlaması için servisi kurun
 sudo cp systemd/orison-web.service /etc/systemd/system/orison-web.service
 sudo systemctl daemon-reload
 sudo systemctl enable orison-web.service
 sudo systemctl start orison-web.service
 ```
 
-Kurulum tamamlandıktan sonra terminale `http://station.local:8765` (veya Pi IP adresiniz) üzerinden erişebilirsiniz.
+### Adım 6: Donanım ve Erişim
+1. Raspberry Pi'nizin **GPIO 4** pinine (fiziksel Pin 7) anten görevi görmesi için yaklaşık 20-30 cm boyunda basit bir kablo bağlayın.
+2. Tarayıcınızdan `http://yeni-pi-ip-adresi:8765` (veya `http://station.local:8765`) adresine giderek kontrol panelinize erişebilirsiniz.
 
 ---
 
