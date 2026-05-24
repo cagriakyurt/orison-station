@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORISON // Taktik Radyo Terminali</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#060913">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060913;
+            --card-bg: rgba(10, 16, 30, 0.75);
+            --card-border: rgba(0, 240, 255, 0.15);
+            --card-glow: rgba(0, 240, 255, 0.05);
+            
+            --accent-cyan: #00f0ff;
+            --accent-green: #39ff14;
+            --accent-orange: #ffb000;
+            --accent-red: #ff3b30;
+            --text-primary: #e2e8f0;
+            --text-secondary: #64748b;
+            
+            --glow-cyan: 0 0 15px rgba(0, 240, 255, 0.4);
+            --glow-green: 0 0 15px rgba(57, 255, 20, 0.5);
+            --glow-orange: 0 0 15px rgba(255, 176, 0, 0.4);
+            --glow-red: 0 0 15px rgba(255, 59, 48, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* CRT Monitor Scanline Effect Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(0, 240, 255, 0.03), rgba(57, 255, 20, 0.01), rgba(255, 0, 0, 0.02));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.65;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 176, 0, 0.03) 0%, transparent 40%);
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            min-height: 100vh;
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+            padding-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            box-shadow: 0 4px 20px -10px rgba(0, 240, 255, 0.1);
+        }
+
+        .header-title-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-tag {
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+            letter-spacing: 4px;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .header-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 3rem;
+            letter-spacing: 6px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.1), var(--glow-cyan);
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .header-info {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        .header-info span {
+            color: var(--accent-cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        .header-info strong {
+            color: var(--accent-orange);
+            text-shadow: var(--glow-orange);
+            font-weight: normal;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 900px) {
+            main {
+                grid-template-columns: 380px 1fr;
+            }
+        }
+
+        /* Glassmorphism Tactical Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.75rem;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 
+                        inset 0 0 20px rgba(0, 240, 255, 0.03);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            opacity: 0.3;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 240, 255, 0.25);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 
+                        inset 0 0 20px rgba(0, 240, 255, 0.04);
+        }
+
+        .card-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.35rem;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            padding-bottom: 0.75rem;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Status Widget Widget */
+        .status-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(4, 7, 13, 0.6);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Pulsing Radar Ring */
+        .radar-sweep {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(113, 128, 150, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-display.active .radar-sweep {
+            border-color: rgba(57, 255, 20, 0.3);
+        }
+
+        .radar-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .status-display.active .radar-dot {
+            background-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+        }
+
+        .status-display.active .radar-sweep::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--accent-green);
+            border-radius: 50%;
+            animation: radar-pulse 1.8s cubic-bezier(0.25, 0, 0, 1) infinite;
+        }
+
+        @keyframes radar-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.4); opacity: 0; }
+        }
+
+        .status-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .status-display.active .status-value {
+            color: var(--accent-green);
+            text-shadow: var(--glow-green);
+        }
+
+        /* Dynamic Waveform Visualizer */
+        .waveform {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 24px;
+        }
+
+        .wave-bar {
+            width: 2px;
+            height: 3px;
+            background-color: var(--text-secondary);
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .status-display.active .wave-bar {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+            animation: bounce 0.8s ease-in-out infinite alternate;
+        }
+
+        .status-display.active .wave-bar:nth-child(1)  { animation-delay: 0.1s; height: 12px; }
+        .status-display.active .wave-bar:nth-child(2)  { animation-delay: 0.35s; height: 18px; }
+        .status-display.active .wave-bar:nth-child(3)  { animation-delay: 0.15s; height: 8px; }
+        .status-display.active .wave-bar:nth-child(4)  { animation-delay: 0.5s; height: 22px; }
+        .status-display.active .wave-bar:nth-child(5)  { animation-delay: 0.25s; height: 14px; }
+        .status-display.active .wave-bar:nth-child(6)  { animation-delay: 0.4s; height: 20px; }
+        .status-display.active .wave-bar:nth-child(7)  { animation-delay: 0.1s; height: 6px; }
+        .status-display.active .wave-bar:nth-child(8)  { animation-delay: 0.6s; height: 16px; }
+
+        @keyframes bounce {
+            0% { transform: scaleY(0.2); }
+            100% { transform: scaleY(1.1); }
+        }
+
+        .last-cmd-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 0.85rem;
+        }
+
+        .last-cmd-box {
+            font-size: 0.75rem;
+            word-break: break-all;
+            color: var(--accent-cyan);
+            max-height: 80px;
+            overflow-y: auto;
+            margin-top: 0.4rem;
+            line-height: 1.4;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.25);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.25);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.55);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+
+        /* Custom inputs */
+        input[type="text"],
+        select {
+            width: 100%;
+            background: rgba(5, 7, 12, 0.75);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+        }
+
+        /* Toggle Checkbox Switch */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(5, 7, 12, 0.5);
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .3s;
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-secondary);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: rgba(0, 240, 255, 0.2);
+            border-color: var(--accent-cyan);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* Custom slider and number styling */
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(5, 7, 12, 0.6);
+            padding: 0.6rem 0.85rem;
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+        }
+
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            box-shadow: var(--glow-cyan);
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .range-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+            min-width: 45px;
+            text-align: right;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(5, 7, 12, 0.75);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 0.85rem;
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            outline: none;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.15), 
+                        inset 0 0 8px rgba(0, 240, 255, 0.05);
+        }
+
+        /* Buttons Design */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            padding: 0.85rem 1.4rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        .btn-cyan {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .btn-cyan:hover:not(:disabled) {
+            background: var(--accent-cyan);
+            color: var(--bg-color);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-orange {
+            background: rgba(255, 176, 0, 0.08);
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .btn-orange:hover:not(:disabled) {
+            background: var(--accent-orange);
+            color: var(--bg-color);
+            box-shadow: var(--glow-orange);
+        }
+
+        .btn-red {
+            background: rgba(255, 59, 48, 0.08);
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .btn-red:hover:not(:disabled) {
+            background: var(--accent-red);
+            color: #ffffff;
+            box-shadow: var(--glow-red);
+        }
+
+        .btn-grey {
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+        }
+
+        .btn-grey:hover:not(:disabled) {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+        }
+
+        .btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: var(--text-secondary);
+            color: var(--text-secondary);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 480px) {
+            .btn-group-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .grid-panel-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid-panel-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Playlist Queue Builder styling */
+        .playlist-wrapper {
+            background: rgba(4, 7, 13, 0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 120px;
+            max-height: 320px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .playlist-empty {
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 0.75rem;
+            margin: auto;
+        }
+
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 240, 255, 0.08);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            animation: slideInBlock 0.2s ease forwards;
+        }
+
+        @keyframes slideInBlock {
+            from { transform: translateX(-10px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .playlist-item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .playlist-item-index {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .playlist-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .playlist-item-type {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .playlist-item-preview {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            max-width: 400px;
+        }
+
+        .playlist-item-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .playlist-item-delete:hover {
+            color: var(--accent-red);
+        }
+
+        .playlist-item-delete svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* Console styling */
+        .console {
+            background-color: #020407;
+            border: 1px solid rgba(0, 240, 255, 0.08);
+            border-radius: 6px;
+            padding: 1.25rem;
+            height: 320px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: #8da2b3;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .console-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 0.75rem;
+        }
+
+        .console-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 0.75rem;
+            border-bottom: 1px dashed var(--accent-cyan);
+            padding-bottom: 2px;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .console-link:hover {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+            text-shadow: 0 0 5px rgba(255,255,255,0.4);
+        }
+
+        /* Status colors formatting inside console */
+        .console-log-success { color: var(--accent-green); }
+        .console-log-fail { color: var(--accent-red); }
+        .console-log-action { color: var(--accent-cyan); }
+
+        /* Banner labels */
+        .tag-pill {
+            display: inline-block;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            width: fit-content;
+        }
+
+        /* Toast Notifications */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(6, 9, 19, 0.95);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 6px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            font-size: 0.8rem;
+            display: none;
+            animation: slideUp 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            font-family: 'Fira Code', monospace;
+            max-width: 320px;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Audio Player Styling */
+        .audio-player-container {
+            margin-bottom: 1.25rem;
+            width: 100%;
+        }
+        audio {
+            width: 100%;
+            height: 38px;
+            border-radius: 6px;
+            background: rgba(5, 7, 12, 0.75);
+            border: 1px solid var(--card-border);
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        audio:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title-container">
+            <span class="header-tag">Güvenli İletişim Konsolu</span>
+            <h1 class="header-title">ORISON</h1>
+        </div>
+        <div class="header-info">
+            FREKANS: <span id="headerFreq">107.9 MHz</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- SIDEBAR: STATUS & PARAMETERS -->
+        <div class="status-container">
+            
+            <!-- Live Status Glass Card -->
+            <div class="card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    Sinyal Telemetrisi
+                </div>
+                
+                <div class="status-display" id="statusBox">
+                    <div class="status-left">
+                        <div class="radar-sweep">
+                            <div class="radar-dot"></div>
+                        </div>
+                        <div class="status-info">
+                            <span class="status-label">Verici Durumu</span>
+                            <span class="status-value" id="statusText">YÜKLENİYOR...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Sound Equalizer Waveform -->
+                    <div class="waveform">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.25rem;">
+                    <div class="last-cmd-container">
+                        <span class="status-label">Son Tetiklenen Komut</span>
+                        <div class="last-cmd-box" id="lastCmd">Veri yükleniyor...</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.25rem;">
+                    <button class="btn btn-red" id="btnStop" onclick="sendAction('stop')">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                        Yayını Acil Durdur
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transmission Parameters Card -->
+            <div class="card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+                    Yayın Parametreleri
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Yayın Frekansı (MHz)</label>
+                    <div class="range-container">
+                        <input type="range" id="broadcastFreq" value="107.9" min="87.5" max="108.0" step="0.1" oninput="updateFreqDisplay(this.value)">
+                        <span class="range-value" id="broadcastFreqVal">107.9</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">RDS İstasyon Kimliği (PS)</label>
+                    <input type="text" id="rdsPs" value="ORISON" maxlength="8" placeholder="Max 8 Karakter">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">RDS Detay Metni (RT)</label>
+                    <input type="text" id="rdsRt" value="ATTENTION" maxlength="64" placeholder="Max 64 Karakter">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ses Filtre Efekti</label>
+                    <select id="filterSelect">
+                        <option value="am">AM Telsiz Modu (Varsayılan)</option>
+                        <option value="bunker">Taktik Sığınak Yankısı (Echo)</option>
+                        <option value="tape">Bant Sürüklenmesi (Tremolo)</option>
+                        <option value="none">Filtresiz (Ham Net Ses)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="switch-container">
+                        <span class="form-label" style="margin-bottom:0;">Kısa Dalga Paraziti (Gürültü)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="noiseToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mors Bip Frekansı (Hz)</label>
+                    <div class="range-container">
+                        <input type="range" id="morseFreq" value="650" min="400" max="1000" step="50" oninput="document.getElementById('morseFreqVal').textContent = this.value">
+                        <span class="range-value" id="morseFreqVal">650</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mors Bip Hızı (Word Unit)</label>
+                    <div class="range-container">
+                        <input type="range" id="morseSpeed" value="0.09" min="0.05" max="0.20" step="0.01" oninput="document.getElementById('morseSpeedVal').textContent = this.value">
+                        <span class="range-value" id="morseSpeedVal">0.09</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Archive Card -->
+            <div class="card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                    Ses Deposu
+                </div>
+                
+                <div class="audio-player-container">
+                    <audio id="audioPlayer" controls>
+                        <source src="/download" type="audio/wav">
+                        Tarayıcınız ses çalma özelliğini desteklemiyor.
+                    </audio>
+                </div>
+
+                <div class="btn-group">
+                    <a href="/download?download=true" class="btn btn-cyan" id="btnDownload" target="_blank">
+                        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                        WAV Dosyasını İndir
+                    </a>
+                    <button class="btn btn-orange" id="btnBroadcastLast" onclick="sendAction('broadcast_last')">
+                        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                        Son Kaydı Yayınla
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN WORKSPACE: CONTROL COCKPIT -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <!-- SEQUENCE PLAYLIST QUEUE BUILDER CARD -->
+            <div class="card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/></svg>
+                    Yayın Akışı Sıralayıcı (Sequence Builder)
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                    Farklı yayın modlarını sıraya ekleyerek kesintisiz ve karmaşık yayın akışları oluşturun. Sıradaki tüm sesler birleştirilerek tek seferde yayınlanır.
+                </p>
+
+                <!-- Queue Display list -->
+                <div class="playlist-wrapper" id="playlistQueue">
+                    <div class="playlist-empty" id="playlistEmpty">Sıra boş. Aşağıdaki panelden blok ekleyin.</div>
+                </div>
+
+                <!-- Add block controls -->
+                <div style="border: 1px solid rgba(0,240,255,0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2); margin-bottom: 1.5rem;">
+                    <div class="form-label" style="color: #ffffff; font-size: 0.8rem; margin-bottom: 1rem;">Sıraya Blok Ekle</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Blok Tipi</label>
+                            <select id="blockTypeSelect" onchange="toggleBlockTypeFields()">
+                                <option value="id">Tanıtıcı Anons (ID)</option>
+                                <option value="numbers">Sayı Dizisi (Numbers)</option>
+                                <option value="say">Yapay Ses Metni (Say)</option>
+                                <option value="morse">Mors Kod Metni (Morse)</option>
+                            </select>
+                        </div>
+
+                        <!-- Count selector (Numbers mode) -->
+                        <div class="form-group" id="blockGroupNumbers" style="display:none; margin-bottom:0;">
+                            <label class="form-label">Grup Sayısı</label>
+                            <div class="range-container">
+                                <input type="range" id="blockNumbersCount" value="12" min="1" max="50" oninput="document.getElementById('blockNumbersVal').textContent = this.value">
+                                <span class="range-value" id="blockNumbersVal">12</span>
+                            </div>
+                        </div>
+
+                        <!-- Text selector (Say and Morse modes) -->
+                        <div class="form-group" id="blockGroupText" style="display:none; margin-bottom:0;">
+                            <label class="form-label">Blok Mesaj Metni</label>
+                            <textarea id="blockTextPayload" rows="2" placeholder="Mesajı yazın..."></textarea>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-orange" onclick="addBlockToPlaylist()">
+                        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        Bloğu Sıraya Ekle
+                    </button>
+                </div>
+
+                <!-- Sequence Action Triggers -->
+                <div class="btn-group" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+                    <button class="btn btn-orange" onclick="broadcastSequence(false)">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        Sırayı Önizle
+                    </button>
+                    <button class="btn btn-cyan" id="btnRunSequence" onclick="broadcastSequence(true)">
+                        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                        Yayın Akışını Başlat
+                    </button>
+                    <button class="btn btn-grey" onclick="clearPlaylistQueue()">
+                        Sırayı Temizle
+                    </button>
+                </div>
+            </div>
+
+            <!-- MANUAL ACTION TRIGGERS CARD -->
+            <div class="card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    Tekil İstasyon Kontrolleri
+                </div>
+                
+                <div class="grid-panel-container">
+                    
+                    <!-- STATION ID CARD -->
+                    <div style="display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
+                        <div>
+                            <span class="tag-pill">Mod: ID</span>
+                            <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">İstasyon Tanıtım Kodu</div>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1.25rem 0; line-height: 1.5;">
+                                İstasyonu tanıtan standart anonsu seslendirir ve yayınlar:
+                                <span style="display:block; margin-top: 5px; font-style: italic; color: var(--accent-cyan);">"This is Orison station. Signal begins."</span>
+                            </p>
+                        </div>
+                        <div class="btn-group btn-group-row">
+                            <button class="btn btn-orange" onclick="sendAction('make_id')">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                Önizle
+                            </button>
+                            <button class="btn btn-cyan" onclick="sendAction('id')">
+                                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                                Yayınla
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- NUMBERS GENERATOR CARD -->
+                    <div style="border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
+                        <span class="tag-pill">Mod: NUMBERS</span>
+                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">Sayı Dizisi Jeneratörü</div>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;">
+                            Rastgele 5'li sayı grupları seslendirir. Başlangıçta "Attention", sonda "End of transmission" eklenir.
+                        </p>
+                        <div class="form-group">
+                            <label class="form-label">Grup Sayısı</label>
+                            <div class="range-container">
+                                <input type="range" id="numbersCount" value="12" min="1" max="50" oninput="document.getElementById('numbersVal').textContent = this.value">
+                                <span class="range-value" id="numbersVal">12</span>
+                            </div>
+                        </div>
+                        <div class="btn-group btn-group-row">
+                            <button class="btn btn-orange" onclick="triggerNumbers(true)">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                Önizle
+                            </button>
+                            <button class="btn btn-cyan" onclick="triggerNumbers(false)">
+                                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                                Yayınla
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SAY TEXT SPEECH CARD -->
+                    <div style="grid-column: 1 / -1; border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
+                        <span class="tag-pill">Mod: SAY</span>
+                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">Yapay Ses Sentezleyici</div>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;">
+                            Yazdığınız metni ses sentezleyici ile seslendirip yayına verir.
+                        </p>
+                        <div class="form-group">
+                            <label class="form-label">Mesaj Metni (İngilizce)</label>
+                            <textarea id="sayText" rows="3" placeholder="Sentezlenecek mesajı girin... Örn: The northern relay is silent."></textarea>
+                        </div>
+                        <div class="btn-group btn-group-row">
+                            <button class="btn btn-orange" onclick="triggerSay(true)">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                Önizle
+                            </button>
+                            <button class="btn btn-cyan" onclick="triggerSay(false)">
+                                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                                Sentezle & Yayınla
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- MORSE TRANSMITTER CARD -->
+                    <div style="grid-column: 1 / -1; border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
+                        <span class="tag-pill">Mod: MORSE</span>
+                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">Mors Kodu Vericisi</div>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;">
+                            Metni Mors koduna dönüştürür ve ses sinyali üreterek yayınlar.
+                        </p>
+                        <div class="form-group">
+                            <label class="form-label">Mors Mesajı</label>
+                            <textarea id="morseText" rows="2" placeholder="Mors koduna çevrilecek metin... Örn: ORISON ATTENTION"></textarea>
+                        </div>
+                        <div class="btn-group btn-group-row">
+                            <button class="btn btn-orange" onclick="triggerMorse(true)">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                Önizle
+                            </button>
+                            <button class="btn btn-cyan" onclick="triggerMorse(false)">
+                                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                                Morsu Yayınla
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CONSOLE ACTION LOGS -->
+            <div class="card full-width-card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><path d="M20 19.59V8l-6-6H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c.45 0 .85-.15 1.19-.4l-4.43-4.43c-.8.52-1.74.83-2.76.83-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5c0 1.02-.31 1.96-.83 2.75L20 19.59zM9 13c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3z"/></svg>
+                    Sistem Log Kayıtları
+                </div>
+                <div class="console-actions">
+                    <a href="/log" target="_blank" class="console-link">
+                        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                        Tam Log Dosyasını Aç
+                    </a>
+                </div>
+                <div class="console-container">
+                    <div class="console" id="consoleLogs">Sistem log verileri yükleniyor...</div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <div class="toast-notification" id="toast"></div>
+
+    <script>
+        const statusBox = document.getElementById("statusBox");
+        const statusText = document.getElementById("statusText");
+        const lastCmd = document.getElementById("lastCmd");
+        const consoleLogs = document.getElementById("consoleLogs");
+        const btnDownload = document.getElementById("btnDownload");
+        const btnBroadcastLast = document.getElementById("btnBroadcastLast");
+        const toast = document.getElementById("toast");
+
+        // Sequence playlist queue memory
+        let playlist = [];
+
+        function updateFreqDisplay(val) {
+            document.getElementById('broadcastFreqVal').textContent = val;
+            document.getElementById('headerFreq').textContent = val + " MHz";
+        }
+
+        function playPreview() {
+            const player = document.getElementById("audioPlayer");
+            if (player) {
+                player.src = "/download?t=" + new Date().getTime();
+                player.load();
+                player.play().catch(e => {
+                    console.log("Audio playback was blocked or failed:", e);
+                });
+            }
+        }
+
+        function sendAction(actionName, params = {}) {
+            // Apply global tuning parameters to all actions automatically
+            params["ps"] = document.getElementById("rdsPs").value;
+            params["rt"] = document.getElementById("rdsRt").value;
+            params["noise"] = document.getElementById("noiseToggle").checked ? "true" : "false";
+            params["filter"] = document.getElementById("filterSelect").value;
+            params["morse_freq"] = document.getElementById("morseFreq").value;
+            params["morse_speed"] = document.getElementById("morseSpeed").value;
+            params["freq"] = document.getElementById("broadcastFreq").value;
+
+            const formData = new FormData();
+            formData.append("action", actionName);
+            for (const key in params) {
+                formData.append(key, params[key]);
+            }
+
+            setControlsDisabled(true);
+            showToast(`İşlem başlatıldı: ${actionName.toUpperCase()}`);
+
+            fetch("/action", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                showToast(data.message, data.success ? "success" : "error");
+                setControlsDisabled(false);
+                updateStatus(); 
+                if (data.success && actionName.startsWith("make_")) {
+                    playPreview();
+                }
+            })
+            .catch(err => {
+                showToast(`Hata Oluştu: ${err.message}`, "error");
+                setControlsDisabled(false);
+            });
+        }
+
+        function triggerNumbers(isMakeOnly) {
+            const count = document.getElementById("numbersCount").value;
+            const action = isMakeOnly ? "make_numbers" : "numbers";
+            sendAction(action, { count: count });
+        }
+
+        function triggerSay(isMakeOnly) {
+            const text = document.getElementById("sayText").value.trim();
+            if (!text) {
+                showToast("Lütfen seslendirilecek bir metin yazın.", "error");
+                return;
+            }
+            const action = isMakeOnly ? "make_say" : "say";
+            sendAction(action, { text: text });
+        }
+
+        function triggerMorse(isMakeOnly) {
+            let text = document.getElementById("morseText").value.trim();
+            if (!text) {
+                text = "ORISON ATTENTION";
+            }
+            const action = isMakeOnly ? "make_morse" : "morse";
+            sendAction(action, { text: text });
+        }
+
+        /* SEQUENCE PLAYLIST QUEUE FUNCTIONS */
+        function toggleBlockTypeFields() {
+            const type = document.getElementById("blockTypeSelect").value;
+            const groupNum = document.getElementById("blockGroupNumbers");
+            const groupText = document.getElementById("blockGroupText");
+
+            if (type === "id") {
+                groupNum.style.display = "none";
+                groupText.style.display = "none";
+            } else if (type === "numbers") {
+                groupNum.style.display = "block";
+                groupText.style.display = "none";
+            } else if (type === "say" || type === "morse") {
+                groupNum.style.display = "none";
+                groupText.style.display = "block";
+            }
+        }
+
+        function renderPlaylistQueue() {
+            const container = document.getElementById("playlistQueue");
+            const emptyEl = document.getElementById("playlistEmpty");
+            
+            // Clear all items except the empty placeholder
+            container.querySelectorAll(".playlist-item").forEach(item => item.remove());
+
+            if (playlist.length === 0) {
+                emptyEl.style.display = "block";
+                return;
+            }
+
+            emptyEl.style.display = "none";
+
+            playlist.forEach((block, idx) => {
+                const item = document.createElement("div");
+                item.className = "playlist-item";
+
+                let previewText = "";
+                if (block.type === "id") {
+                    previewText = "Tanıtım anonsu çalınır.";
+                } else if (block.type === "numbers") {
+                    previewText = `${block.count} adet rastgele sayı grubu okunur.`;
+                } else if (block.type === "say") {
+                    previewText = `"${block.text}" metni seslendirilir.`;
+                } else if (block.type === "morse") {
+                    previewText = `"${block.text}" metni Mors biplemesine çevrilir.`;
+                }
+
+                item.innerHTML = `
+                    <div class="playlist-item-left">
+                        <div class="playlist-item-index">${idx + 1}</div>
+                        <div class="playlist-item-details">
+                            <span class="playlist-item-type">${block.type}</span>
+                            <span class="playlist-item-preview">${previewText}</span>
+                        </div>
+                    </div>
+                    <button class="playlist-item-delete" onclick="removeBlockFromPlaylist(${idx})" title="Bloğu Sil">
+                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function addBlockToPlaylist() {
+            const type = document.getElementById("blockTypeSelect").value;
+            const newBlock = { type: type };
+
+            if (type === "numbers") {
+                newBlock["count"] = parseInt(document.getElementById("blockNumbersCount").value);
+            } else if (type === "say" || type === "morse") {
+                const text = document.getElementById("blockTextPayload").value.trim();
+                if (!text && type === "say") {
+                    showToast("Seslendirilecek metni girmelisiniz.", "error");
+                    return;
+                }
+                newBlock["text"] = text || "ORISON ATTENTION";
+            }
+
+            playlist.push(newBlock);
+            document.getElementById("blockTextPayload").value = ""; // reset METİN
+            renderPlaylistQueue();
+            showToast("Blok sıraya eklendi.", "success");
+        }
+
+        function removeBlockFromPlaylist(index) {
+            playlist.splice(index, 1);
+            renderPlaylistQueue();
+            showToast("Blok sıradan çıkarıldı.", "info");
+        }
+
+        function clearPlaylistQueue() {
+            playlist = [];
+            renderPlaylistQueue();
+            showToast("Yayın akış sırası temizlendi.", "info");
+        }
+
+        function broadcastSequence(broadcast = true) {
+            if (playlist.length === 0) {
+                showToast("Lütfen yayın akışına en az bir blok ekleyin.", "error");
+                return;
+            }
+
+            const payload = {
+                sequence: playlist,
+                ps: document.getElementById("rdsPs").value,
+                rt: document.getElementById("rdsRt").value,
+                noise: document.getElementById("noiseToggle").checked,
+                filter: document.getElementById("filterSelect").value,
+                morse_freq: parseInt(document.getElementById("morseFreq").value),
+                morse_speed: parseFloat(document.getElementById("morseSpeed").value),
+                freq: parseFloat(document.getElementById("broadcastFreq").value),
+                broadcast: broadcast
+            };
+
+            setControlsDisabled(true);
+            showToast(broadcast ? "Sıralı yayın akışı derleniyor..." : "Sıralı yayın önizlemesi hazırlanıyor...");
+
+            fetch("/action_sequence", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                showToast(data.message, data.success ? "success" : "error");
+                setControlsDisabled(false);
+                updateStatus();
+                if (data.success && !broadcast) {
+                    playPreview();
+                }
+            })
+            .catch(err => {
+                showToast(`Ağ Hatası: ${err.message}`, "error");
+                setControlsDisabled(false);
+            });
+        }
+
+        /* TELEMETRY ENGINE & STATUS CHECKING */
+        function setControlsDisabled(disabled) {
+            const buttons = document.querySelectorAll("button");
+            buttons.forEach(btn => {
+                if (btn.id !== "btnStop") { 
+                    btn.disabled = disabled;
+                }
+            });
+        }
+
+        function showToast(message, type = "info") {
+            toast.textContent = message;
+            toast.style.display = "block";
+            toast.style.borderColor = type === "error" ? "var(--accent-red)" : 
+                                      type === "success" ? "var(--accent-green)" : "var(--accent-cyan)";
+            toast.style.boxShadow = type === "error" ? "var(--glow-red)" : 
+                                    type === "success" ? "var(--glow-green)" : "var(--glow-cyan)";
+            
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 3000);
+        }
+
+        let lastStatus = null;
+
+        function updateStatus() {
+            fetch("/status")
+            .then(res => res.json())
+            .then(data => {
+                const currentStatus = data.status;
+
+                if (currentStatus === "Active") {
+                    statusBox.classList.add("active");
+                    statusText.textContent = "YAYINDA";
+                    if (lastStatus === "Idle") {
+                        playPreview();
+                    }
+                } else {
+                    statusBox.classList.remove("active");
+                    statusText.textContent = "BOŞTA (YAYIN YOK)";
+                }
+
+                lastStatus = currentStatus;
+
+                lastCmd.textContent = data.last_cmd || "Yok";
+
+                if (data.wav_exists) {
+                    btnDownload.classList.remove("disabled");
+                    btnDownload.style.pointerEvents = "auto";
+                    btnBroadcastLast.disabled = false;
+                } else {
+                    btnDownload.classList.add("disabled");
+                    btnDownload.style.pointerEvents = "none";
+                    btnBroadcastLast.disabled = true;
+                }
+
+                const isScrolled = consoleLogs.scrollHeight - consoleLogs.clientHeight <= consoleLogs.scrollTop + 30;
+                
+                let formattedLogs = data.recent_logs
+                    .replace(/(BACKGROUND ACTION:.*)/g, '<span class="console-log-action">$1</span>')
+                    .replace(/(BACKGROUND SEQUENCE BROADCAST:.*)/g, '<span class="console-log-action">$1</span>')
+                    .replace(/(ACTION:.*)/g, '<span class="console-log-action">$1</span>')
+                    .replace(/(Status: SUCCESS.*|SUCCESS.*)/g, '<span class="console-log-success">$1</span>')
+                    .replace(/(Status: FAILED.*|FAILED.*|ERROR.*)/g, '<span class="console-log-fail">$1</span>');
+                    
+                consoleLogs.innerHTML = formattedLogs;
+                
+                if (isScrolled) {
+                    consoleLogs.scrollTop = consoleLogs.scrollHeight;
+                }
+            })
+            .catch(err => {
+                console.error("Telemetri bağlantı hatası: ", err);
+                statusBox.classList.remove("active");
+                statusText.textContent = "BAĞLANTI KESİLDİ";
+            });
+        }
+
+        // Initialize block inputs visibility
+        toggleBlockTypeFields();
+
+        // Periodically fetch telemetry
+        setInterval(updateStatus, 2000);
+        updateStatus();
+
+        // Register Service Worker for PWA support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('ServiceWorker registered:', reg.scope))
+                    .catch(err => console.log('ServiceWorker registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>

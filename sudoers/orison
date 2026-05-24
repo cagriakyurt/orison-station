@@ -1,0 +1,1 @@
+host ALL=(ALL) NOPASSWD: /home/host/PiFmRds/src/pi_fm_rds, /usr/bin/pkill

@@ -1,0 +1,13 @@
+[Unit]
+Description=ORISON Flask Web UI
+After=network.target
+
+[Service]
+User=host
+WorkingDirectory=/home/host/station/web
+ExecStart=/usr/bin/python3 /home/host/station/web/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

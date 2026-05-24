@@ -1,0 +1,388 @@
+#!/usr/bin/env python3
+import sys
+import os
+import random
+import math
+import struct
+import wave
+import subprocess
+
+# Base configuration paths
+BASE_DIR = "/home/host/station"
+TMP_DIR = os.path.join(BASE_DIR, "tmp")
+BROADCAST_BIN = "/usr/local/bin/orison-broadcast"
+
+# Ensure directories exist
+os.makedirs(TMP_DIR, exist_ok=True)
+
+# Helper function to extract and strip custom CLI flags
+def extract_arg_val(flag, default_val, is_float=False, is_int=False):
+    if flag in sys.argv:
+        try:
+            idx = sys.argv.index(flag)
+            val = sys.argv[idx + 1]
+            sys.argv.pop(idx + 1)
+            sys.argv.pop(idx)
+            if is_float:
+                return float(val)
+            if is_int:
+                return int(val)
+            return val
+        except (ValueError, IndexError):
+            print(f"ERROR: {flag} requires a value.", file=sys.stderr)
+            sys.exit(1)
+    return default_val
+
+def extract_flag(flag):
+    if flag in sys.argv:
+        sys.argv.remove(flag)
+        return True
+    return False
+
+def generate_sine_wave(filepath, frequency, duration, sample_rate=44100, volume=0.5, fade_duration=0.1):
+    """Generates a clean sine wave tone with linear fade-in and fade-out to prevent clicks."""
+    num_samples = int(duration * sample_rate)
+    fade_samples = int(fade_duration * sample_rate)
+    
+    with wave.open(filepath, 'w') as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)  # 16-bit
+        wav_file.setframerate(sample_rate)
+        
+        for i in range(num_samples):
+            t = float(i) / sample_rate
+            value = math.sin(2.0 * math.pi * frequency * t)
+            
+            # Apply fade in/out
+            if i < fade_samples and fade_samples > 0:
+                factor = float(i) / fade_samples
+            elif i > num_samples - fade_samples and fade_samples > 0:
+                factor = float(num_samples - i) / fade_samples
+            else:
+                factor = 1.0
+                
+            sample = int(value * volume * factor * 32767)
+            wav_file.writeframesraw(struct.pack('<h', sample))
+
+def generate_morse_wav(filepath, text, frequency=650, unit_duration=0.09, sample_rate=44100, volume=0.5):
+    """Generates a Morse code WAV file from text with 10ms click-reduction fades."""
+    MORSE_DICT = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+        'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+        'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+        'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+        'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--',
+        '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+        '9': '----.', '0': '-----', ',': '--..--', '.': '.-.-.-', '?': '..--..',
+        '/': '-..-.', '-': '-....-', '(': '-.--.', ')': '-.--.-'
+    }
+    
+    text = text.upper()
+    words = text.split()
+    
+    with wave.open(filepath, 'w') as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(sample_rate)
+        
+        def write_silence(duration_units):
+            num_samples = int(duration_units * unit_duration * sample_rate)
+            silence_sample = struct.pack('<h', 0)
+            for _ in range(num_samples):
+                wav_file.writeframesraw(silence_sample)
+                
+        def write_beep(duration_units):
+            num_samples = int(duration_units * unit_duration * sample_rate)
+            fade_samples = min(int(0.01 * sample_rate), num_samples // 4)
+            for i in range(num_samples):
+                t = float(i) / sample_rate
+                value = math.sin(2.0 * math.pi * frequency * t)
+                
+                if i < fade_samples:
+                    factor = float(i) / fade_samples
+                elif i > num_samples - fade_samples:
+                    factor = float(num_samples - i) / fade_samples
+                else:
+                    factor = 1.0
+                    
+                sample = int(value * volume * factor * 32767)
+                wav_file.writeframesraw(struct.pack('<h', sample))
+                
+        for w_idx, word in enumerate(words):
+            for l_idx, letter in enumerate(word):
+                if letter in MORSE_DICT:
+                    code = MORSE_DICT[letter]
+                    for s_idx, symbol in enumerate(code):
+                        if symbol == '.':
+                            write_beep(1)
+                        elif symbol == '-':
+                            write_beep(3)
+                        
+                        if s_idx < len(code) - 1:
+                            write_silence(1)
+                            
+                if l_idx < len(word) - 1:
+                    write_silence(3)
+                    
+            if w_idx < len(words) - 1:
+                write_silence(7)
+
+def speak_text(text, output_filepath, filter_mode="am"):
+    """Uses espeak-ng to generate raw speech and filters it using Sox based on selection."""
+    raw_path = os.path.join(TMP_DIR, "speech_raw.wav")
+    os.makedirs(os.path.dirname(raw_path), exist_ok=True)
+    
+    # 1. Voice synthesis with espeak-ng
+    try:
+        subprocess.run([
+            "espeak-ng", 
+            "-v", "en-us+m3", 
+            "-s", "122", 
+            "-p", "18", 
+            "-w", raw_path, 
+            text
+        ], check=True)
+    except FileNotFoundError:
+        print("ERROR: espeak-ng not found. Please install it on the system.", file=sys.stderr)
+        sys.exit(1)
+        
+    # 2. Sox filter processing
+    sox_effects = []
+    if filter_mode == "am":
+        sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400"]
+    elif filter_mode == "bunker":
+        sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "reverb", "60", "50", "80", "0", "10", "-3"]
+    elif filter_mode == "tape":
+        sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "tremolo", "5", "25"]
+    else: # "none"
+        sox_effects = ["gain", "-3"]
+
+    try:
+        subprocess.run([
+            "sox", 
+            raw_path, 
+            "-r", "44100", 
+            "-c", "1", 
+            "-b", "16", 
+            output_filepath
+        ] + sox_effects, check=True)
+    except FileNotFoundError:
+        print("ERROR: sox not found. Please install it on the system.", file=sys.stderr)
+        sys.exit(1)
+    finally:
+        if os.path.exists(raw_path):
+            try:
+                os.remove(raw_path)
+            except OSError:
+                pass
+
+def concatenate_wavs(files, output_filepath):
+    """Concatenates multiple WAV files into one."""
+    try:
+        subprocess.run(["sox"] + files + [output_filepath], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: failed to concatenate WAV files with sox: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def main():
+    # Parse and strip advanced CLI parameters
+    delay_seconds = extract_arg_val('--delay', 0, is_int=True)
+    custom_output = extract_arg_val('--output', None)
+    enable_noise = extract_flag('--noise')
+    no_silence = extract_flag('--no-silence')
+    filter_mode = extract_arg_val('--filter', 'am')
+    morse_freq = extract_arg_val('--morse-freq', 650, is_int=True)
+    morse_speed = extract_arg_val('--morse-speed', 0.09, is_float=True)
+    
+    # Parse dynamic RDS properties
+    ps_val = extract_arg_val('--ps', 'ORISON')
+    rt_val = extract_arg_val('--rt', 'ATTENTION')
+    freq_val = extract_arg_val('--freq', '107.9')
+
+    # Perform scheduling delay if requested
+    if delay_seconds > 0:
+        print(f"Delaying broadcast execution by {delay_seconds} seconds...")
+        import time
+        try:
+            time.sleep(delay_seconds)
+        except KeyboardInterrupt:
+            print("Delay canceled by user signal.", file=sys.stderr)
+            sys.exit(0)
+
+    args = sys.argv[1:]
+    if not args:
+        print("Usage: orison [make] <id|numbers|say|morse> [args...]", file=sys.stderr)
+        sys.exit(1)
+        
+    is_make = False
+    if args[0] == 'make':
+        is_make = True
+        args = args[1:]
+        
+    if not args:
+        print("Usage: orison [make] <id|numbers|say|morse> [args...]", file=sys.stderr)
+        sys.exit(1)
+        
+    mode = args[0]
+    
+    # Temporary filenames for segments
+    intro_wav = os.path.join(TMP_DIR, "intro.wav")
+    content_wav = os.path.join(TMP_DIR, "content.wav")
+    silence_wav = os.path.join(TMP_DIR, "silence.wav")
+    combined_clean_wav = os.path.join(TMP_DIR, "combined_clean.wav")
+    
+    # Establish final target path
+    final_output = custom_output if custom_output else os.path.join(TMP_DIR, "orison_radio.wav")
+
+    # Generate 1.0s of 800 Hz intro tone + 0.5s of silence
+    generate_sine_wave(intro_wav, frequency=800, duration=1.0, volume=0.5, fade_duration=0.1)
+    
+    # Generate 30.0s of silence to keep the carrier wave active after transmission
+    generate_sine_wave(silence_wav, frequency=0, duration=30.0, volume=0.0, fade_duration=0.0)
+    
+    # Generate the main audio content
+    if mode == 'id':
+        text = "This is Orison station. Signal begins."
+        speak_text(text, content_wav, filter_mode=filter_mode)
+        
+    elif mode == 'numbers':
+        count = 12
+        if len(args) > 1:
+            try:
+                count = int(args[1])
+            except ValueError:
+                pass
+                
+        # Generate random digit groups
+        groups = []
+        for _ in range(count):
+            group = "".join(str(random.randint(0, 9)) for _ in range(5))
+            groups.append(group)
+            
+        group_speech = [", ".join(list(g)) for g in groups]
+        text = "Attention. Sequence follows. " + ". ".join(group_speech) + ". End of transmission."
+        speak_text(text, content_wav, filter_mode=filter_mode)
+        
+    elif mode == 'say':
+        if len(args) < 2:
+            print("ERROR: 'say' mode requires a text argument.", file=sys.stderr)
+            sys.exit(1)
+        text = args[1]
+        speak_text(text, content_wav, filter_mode=filter_mode)
+        
+    elif mode == 'morse':
+        text = "ORISON ATTENTION"
+        if len(args) > 1 and args[1].strip():
+            text = args[1]
+            
+        raw_morse_path = os.path.join(TMP_DIR, "morse_raw.wav")
+        generate_morse_wav(raw_morse_path, text, frequency=morse_freq, unit_duration=morse_speed)
+        
+        # Apply Sox filter to the Morse code WAV
+        sox_effects = []
+        if filter_mode == "am":
+            sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400"]
+        elif filter_mode == "bunker":
+            sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "reverb", "60", "50", "80", "0", "10", "-3"]
+        elif filter_mode == "tape":
+            sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "tremolo", "5", "25"]
+        else: # "none"
+            sox_effects = ["gain", "-3"]
+
+        try:
+            subprocess.run([
+                "sox", 
+                raw_morse_path, 
+                "-r", "44100", 
+                "-c", "1", 
+                "-b", "16", 
+                content_wav
+            ] + sox_effects, check=True)
+        except Exception as e:
+            print(f"ERROR applying filter to Morse: {e}", file=sys.stderr)
+            if os.path.exists(content_wav): os.remove(content_wav)
+            os.rename(raw_morse_path, content_wav)
+        finally:
+            if os.path.exists(raw_morse_path):
+                try: os.remove(raw_morse_path)
+                except OSError: pass
+                
+    else:
+        print(f"ERROR: Unknown mode '{mode}'", file=sys.stderr)
+        sys.exit(1)
+
+    # Concatenate warning tone, core content, and the 30-second silent tail (if not omitted)
+    if no_silence:
+        concatenate_wavs([intro_wav, content_wav], combined_clean_wav)
+    else:
+        concatenate_wavs([intro_wav, content_wav, silence_wav], combined_clean_wav)
+
+    # Apply background shortwave noise if requested
+    if enable_noise:
+        # Determine exact duration of the combined track
+        try:
+            with wave.open(combined_clean_wav, 'rb') as w:
+                frames = w.getnframes()
+                rate = w.getframerate()
+                duration = frames / float(rate)
+        except Exception as e:
+            print(f"ERROR: could not parse clean audio metadata: {e}", file=sys.stderr)
+            sys.exit(1)
+            
+        # Generate noise matching duration by mixing white noise and 50Hz hum correctly
+        noise_wav = os.path.join(TMP_DIR, "noise_synth.wav")
+        noise_part1 = os.path.join(TMP_DIR, "noise_p1.wav")
+        noise_part2 = os.path.join(TMP_DIR, "noise_p2.wav")
+        try:
+            subprocess.run([
+                "sox", "-n", "-r", "44100", "-c", "1", "-b", "16", 
+                noise_part1, "synth", str(duration), "whitenoise", "vol", "0.03"
+            ], check=True)
+            subprocess.run([
+                "sox", "-n", "-r", "44100", "-c", "1", "-b", "16", 
+                noise_part2, "synth", str(duration), "sine", "50", "vol", "0.01"
+            ], check=True)
+            subprocess.run(["sox", "-m", "-v", "1.0", noise_part1, "-v", "1.0", noise_part2, noise_wav], check=True)
+            
+            # Mix the clean track with synthesized noise
+            subprocess.run(["sox", "-m", "-v", "1.0", combined_clean_wav, "-v", "1.0", noise_wav, final_output], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"ERROR: failed to generate or mix background noise via Sox: {e}", file=sys.stderr)
+            sys.exit(1)
+        finally:
+            for f in [noise_wav, noise_part1, noise_part2]:
+                if os.path.exists(f):
+                    try: os.remove(f)
+                    except OSError: pass
+    else:
+        if os.path.exists(final_output):
+            try:
+                os.remove(final_output)
+            except OSError:
+                pass
+        os.rename(combined_clean_wav, final_output)
+
+    print(f"Generated WAV file at: {final_output}")
+    
+    # Clean up intermediate temporary files
+    for temp_file in [intro_wav, content_wav, silence_wav, combined_clean_wav]:
+        if os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except OSError:
+                pass
+                
+    # If not in make mode, invoke the broadcast process
+    if not is_make:
+        if not os.path.exists(BROADCAST_BIN):
+            print(f"ERROR: Broadcast executable not found at {BROADCAST_BIN}", file=sys.stderr)
+            sys.exit(1)
+        print("Starting transmission...")
+        try:
+            os.execv(BROADCAST_BIN, [BROADCAST_BIN, "--ps", ps_val, "--rt", rt_val, "--freq", freq_val])
+        except Exception as e:
+            print(f"ERROR: failed to execute {BROADCAST_BIN}: {e}", file=sys.stderr)
+            sys.exit(1)
+
+if __name__ == '__main__':
+    main()
