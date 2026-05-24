@@ -154,6 +154,12 @@ def speak_text(text, output_filepath, filter_mode="am"):
         sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "reverb", "60", "50", "80", "0", "10", "-3"]
     elif filter_mode == "tape":
         sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "tremolo", "5", "25"]
+    elif filter_mode == "saturate":
+        sox_effects = ["gain", "-6", "highpass", "300", "lowpass", "3000", "overdrive", "20", "20", "gain", "-2"]
+    elif filter_mode == "qsb":
+        sox_effects = ["gain", "-3", "highpass", "250", "lowpass", "2800", "tremolo", "0.15", "50"]
+    elif filter_mode == "flutter":
+        sox_effects = ["gain", "-4", "highpass", "200", "lowpass", "3200", "tremolo", "8", "30"]
     else: # "none"
         sox_effects = ["gain", "-3"]
 
@@ -246,18 +252,29 @@ def main():
         speak_text(text, content_wav, filter_mode=filter_mode)
         
     elif mode == 'numbers':
-        count = 12
-        if len(args) > 1:
-            try:
-                count = int(args[1])
-            except ValueError:
-                pass
-                
-        # Generate random digit groups
         groups = []
-        for _ in range(count):
-            group = "".join(str(random.randint(0, 9)) for _ in range(5))
-            groups.append(group)
+        is_custom = False
+        if len(args) > 1:
+            arg_val = args[1]
+            # Check if this is a space-separated custom string of digit groups (digits and spaces only)
+            clean_arg = arg_val.replace(" ", "")
+            if clean_arg.isdigit() and len(clean_arg) >= 5:
+                # Custom numbers!
+                groups = arg_val.split()
+                is_custom = True
+            else:
+                try:
+                    count = int(arg_val)
+                except ValueError:
+                    count = 12
+        else:
+            count = 12
+            
+        if not is_custom:
+            # Generate random digit groups
+            for _ in range(count):
+                group = "".join(str(random.randint(0, 9)) for _ in range(5))
+                groups.append(group)
             
         group_speech = [", ".join(list(g)) for g in groups]
         text = "Attention. Sequence follows. " + ". ".join(group_speech) + ". End of transmission."
@@ -286,6 +303,12 @@ def main():
             sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "reverb", "60", "50", "80", "0", "10", "-3"]
         elif filter_mode == "tape":
             sox_effects = ["gain", "-3", "highpass", "300", "lowpass", "2400", "tremolo", "5", "25"]
+        elif filter_mode == "saturate":
+            sox_effects = ["gain", "-6", "highpass", "300", "lowpass", "3000", "overdrive", "20", "20", "gain", "-2"]
+        elif filter_mode == "qsb":
+            sox_effects = ["gain", "-3", "highpass", "250", "lowpass", "2800", "tremolo", "0.15", "50"]
+        elif filter_mode == "flutter":
+            sox_effects = ["gain", "-4", "highpass", "200", "lowpass", "3200", "tremolo", "8", "30"]
         else: # "none"
             sox_effects = ["gain", "-3"]
 

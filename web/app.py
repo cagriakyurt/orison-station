@@ -8,6 +8,7 @@ import wave
 import sqlite3
 import json
 import time
+import random
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 
 app = Flask(__name__)
@@ -152,8 +153,8 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
         ]
         
         if item_type == "numbers":
-            count = str(item.get("count", "12"))
-            cmd.append(count)
+            payload = item.get("groups") or str(item.get("count", "12"))
+            cmd.append(payload)
         elif item_type == "say" or item_type == "morse":
             text = item.get("text", "").strip()[:500]
             cmd.append(text)
@@ -494,17 +495,19 @@ def trigger_action():
     elif action == "id":
         success, message = run_async([ORISON_BIN, "id"] + extra_args)
         
-    # 3. Numbers Sequence and Broadcast
     elif action == "numbers":
-        count = request.form.get("count", "12")
-        try:
-            val = int(count)
-            if val < 1 or val > 100:
+        groups = request.form.get("groups", "").strip()
+        if groups:
+            success, message = run_async([ORISON_BIN, "numbers", groups] + extra_args)
+        else:
+            count = request.form.get("count", "12")
+            try:
+                val = int(count)
+                if val < 1 or val > 100:
+                    count = "12"
+            except ValueError:
                 count = "12"
-        except ValueError:
-            count = "12"
-            
-        success, message = run_async([ORISON_BIN, "numbers", count] + extra_args)
+            success, message = run_async([ORISON_BIN, "numbers", count] + extra_args)
         
     # 4. Say Arbitrary Text and Broadcast
     elif action == "say":
@@ -529,15 +532,18 @@ def trigger_action():
         
     # 7. Make Numbers WAV Only (Synchronous)
     elif action == "make_numbers":
-        count = request.form.get("count", "12")
-        try:
-            val = int(count)
-            if val < 1 or val > 100:
+        groups = request.form.get("groups", "").strip()
+        if groups:
+            success, msg_details = run_sync([ORISON_BIN, "make", "numbers", groups] + extra_args)
+        else:
+            count = request.form.get("count", "12")
+            try:
+                val = int(count)
+                if val < 1 or val > 100:
+                    count = "12"
+            except ValueError:
                 count = "12"
-        except ValueError:
-            count = "12"
-            
-        success, msg_details = run_sync([ORISON_BIN, "make", "numbers", count] + extra_args)
+            success, msg_details = run_sync([ORISON_BIN, "make", "numbers", count] + extra_args)
         message = "Numbers WAV generated successfully." if success else f"Generation failed: {msg_details}"
         
     # 8. Make Say WAV Only (Synchronous)
@@ -674,6 +680,111 @@ def live_status():
         "recent_logs": get_recent_logs(),
         "wav_exists": os.path.exists(WAV_PATH)
     })
+
+CHAR_TO_NUM = {
+    ' ': '00', 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 
+    'F': '06', 'G': '07', 'H': '08', 'I': '09', 'J': '10', 'K': '11', 
+    'L': '12', 'M': '13', 'N': '14', 'O': '15', 'P': '16', 'Q': '17', 
+    'R': '18', 'S': '19', 'T': '20', 'U': '21', 'V': '22', 'W': '23', 
+    'X': '24', 'Y': '25', 'Z': '26', '.': '27', '?': '28', '-': '29'
+}
+
+def otp_encrypt(text, key_digits=None):
+    sanitized_text = ""
+    for char in text.upper():
+        if char in CHAR_TO_NUM:
+            sanitized_text += char
+            
+    plain_digits = ""
+    for char in sanitized_text:
+        plain_digits += CHAR_TO_NUM[char]
+        
+    length = len(plain_digits)
+    if length == 0:
+        return "", ""
+        
+    if key_digits:
+        key_digits = "".join(c for c in key_digits if c.isdigit())
+        if len(key_digits) < length:
+            key_digits += "".join(str(random.randint(0, 9)) for _ in range(length - len(key_digits)))
+        else:
+            key_digits = key_digits[:length]
+    else:
+        key_digits = "".join(str(random.randint(0, 9)) for _ in range(length))
+        
+    cipher_digits = ""
+    for i in range(length):
+        p = int(plain_digits[i])
+        k = int(key_digits[i])
+        c = (p + k) % 10
+        cipher_digits += str(c)
+        
+    while len(cipher_digits) % 5 != 0:
+        cipher_digits += "0"
+        key_digits += "0"
+        
+    cipher_groups = [cipher_digits[i:i+5] for i in range(0, len(cipher_digits), 5)]
+    key_groups = [key_digits[i:i+5] for i in range(0, len(key_digits), 5)]
+    
+    return " ".join(cipher_groups), " ".join(key_groups)
+
+@app.route("/api/otp/encrypt", methods=["POST"])
+def api_otp_encrypt():
+    data = request.json
+    if not data or "text" not in data:
+        return jsonify({"success": False, "message": "Mesaj metni gereklidir."}), 400
+        
+    text = data.get("text", "").strip()
+    key = data.get("key", "").strip()
+    
+    if not text:
+        return jsonify({"success": False, "message": "Mesaj metni gereklidir."}), 400
+        
+    ciphertext, key_out = otp_encrypt(text, key)
+    if not ciphertext:
+        return jsonify({"success": False, "message": "Desteklenmeyen karakterler içeren boş mesaj."}), 400
+        
+    return jsonify({"success": True, "ciphertext": ciphertext, "key": key_out})
+
+@app.route("/api/otp/download_key", methods=["POST"])
+def download_otp_key():
+    import io
+    ciphertext = request.form.get("ciphertext", "").strip()
+    key = request.form.get("key", "").strip()
+    
+    if not ciphertext or not key:
+        return "Eksik parametre: ciphertext veya key bulunamadı", 400
+        
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    content = (
+        "==================================================\n"
+        "ORISON TACTICAL RADIO - DECRYPTION KEY SHEET (OTP)\n"
+        "==================================================\n"
+        f"Created: {timestamp}\n\n"
+        "CIPHERTEXT (5-DIGIT GROUPS):\n"
+        f"{ciphertext}\n\n"
+        "ONE-TIME PAD KEY:\n"
+        f"{key}\n\n"
+        "DECRYPTION METHOD:\n"
+        "1. Convert the ciphertext into a continuous digit stream.\n"
+        "2. Convert the OTP key into a continuous digit stream.\n"
+        "3. Subtract the key digit from the ciphertext digit, digit-by-digit.\n"
+        "   If the result is negative, add 10 (Modulo 10 subtraction).\n"
+        "   Formula: Plain = (Cipher - Key) % 10\n"
+        "4. Read the resulting digit stream in pairs of 2:\n"
+        "   00=Space, 01=A, 02=B, 03=C, 04=D, 05=E, 06=F, 07=G, 08=H,\n"
+        "   09=I, 10=J, 11=K, 12=L, 13=M, 14=N, 15=O, 16=P, 17=Q, 18=R,\n"
+        "   19=S, 20=T, 21=U, 22=V, 23=W, 24=X, 25=Y, 26=Z, 27=., 28=?, 29=-\n"
+        "==================================================\n"
+    )
+    
+    mem_file = io.BytesIO(content.encode("utf-8"))
+    return send_file(
+        mem_file,
+        as_attachment=True,
+        download_name="orison_otp_keysheet.txt",
+        mimetype="text/plain"
+    )
 
 @app.route("/api/schedules")
 def get_schedules():
