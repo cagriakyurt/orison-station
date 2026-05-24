@@ -1,1 +1,1 @@
-{{USER}} ALL=(ALL) NOPASSWD: {{HOME}}/PiFmRds/src/pi_fm_rds, /usr/local/bin/orison-stop, /usr/bin/systemctl, /usr/bin/ln
+{{USER}} ALL=(ALL) NOPASSWD: {{HOME}}/PiFmRds/src/pi_fm_rds, /usr/local/bin/orison-stop
