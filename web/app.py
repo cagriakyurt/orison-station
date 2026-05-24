@@ -686,7 +686,7 @@ def get_schedules():
         )
         pending = [dict(row) for row in cursor.fetchall()]
         cursor.execute(
-            "SELECT * FROM schedules WHERE status != 'pending' ORDER BY scheduled_time DESC LIMIT 10"
+            "SELECT * FROM schedules WHERE status != 'pending' ORDER BY scheduled_time DESC LIMIT 5"
         )
         history = [dict(row) for row in cursor.fetchall()]
         conn.close()
