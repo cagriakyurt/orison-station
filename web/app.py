@@ -9,7 +9,9 @@ import sqlite3
 import json
 import time
 import random
+import re
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
+
 
 app = Flask(__name__)
 
@@ -70,7 +72,30 @@ def get_last_command():
         pass
     return "None"
 
-def get_recent_logs(num_lines=15):
+def trim_logs():
+    """Keeps only the last 5 main log entries in the actions log file."""
+    if not os.path.exists(ACTIONS_LOG):
+        return
+    try:
+        with open(ACTIONS_LOG, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        # Matches main entry headers: [YYYY-MM-DD HH:MM:SS] followed by ACTION:, BACKGROUND ACTION:, etc.
+        pattern = re.compile(
+            r'^(\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] (?:ACTION:|BACKGROUND ACTION:|BACKGROUND SEQUENCE BROADCAST:|SCHEDULED BROADCAST TRIGGERED:|SCHEDULER ERROR:|Log initialized\.))',
+            re.MULTILINE
+        )
+        matches = list(pattern.finditer(content))
+        
+        if len(matches) > 5:
+            start_pos = matches[-5].start()
+            trimmed_content = content[start_pos:]
+            with open(ACTIONS_LOG, "w", encoding="utf-8") as f:
+                f.write(trimmed_content)
+    except Exception:
+        pass
+
+def get_recent_logs(num_lines=100):
     """Retrieves the last N lines of the action log for the dashboard."""
     if not os.path.exists(ACTIONS_LOG):
         return ""
@@ -83,6 +108,7 @@ def get_recent_logs(num_lines=15):
 
 def run_sync(cmd):
     """Runs a process synchronously, writing output to the action log."""
+    trim_logs()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cmd_str = " ".join(cmd)
     try:
@@ -109,6 +135,7 @@ def run_sync(cmd):
 
 def run_async(cmd):
     """Runs a process in the background, piping output straight to the action log."""
+    trim_logs()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cmd_str = " ".join(cmd)
     try:
@@ -132,6 +159,7 @@ def run_async(cmd):
         with open(ACTIONS_LOG, "a") as f:
             f.write(log_entry)
         return False, str(e)
+
 
 def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_file=None):
     """Shared helper function to compile a sequence of WAV parts and merge them with dynamic effects."""
@@ -252,6 +280,7 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
 
 def compile_and_broadcast_sequence_thread(sequence, ps, rt, noise, filter_mode, morse_freq, morse_speed, freq):
     """Wrapper function to compile sequence and then broadcast it asynchronously in a background thread."""
+    trim_logs()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_file = open(ACTIONS_LOG, "a")
     log_file.write(f"[{timestamp}] BACKGROUND SEQUENCE BROADCAST: Commencing playlist compilation...\n")
@@ -279,6 +308,7 @@ def compile_and_broadcast_sequence_thread(sequence, ps, rt, noise, filter_mode, 
 
 def execute_schedule_broadcast(action_type, params):
     """Executes a scheduled broadcast, first preempting any currently active broadcast."""
+    trim_logs()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_file = open(ACTIONS_LOG, "a")
     log_file.write(f"[{timestamp}] SCHEDULED BROADCAST TRIGGERED: Type={action_type}\n")
@@ -405,6 +435,7 @@ def scheduler_loop():
             conn.close()
         except Exception as e:
             try:
+                trim_logs()
                 timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 with open(ACTIONS_LOG, "a") as f:
                     f.write(f"[{timestamp}] SCHEDULER ERROR: {str(e)}\n")
@@ -414,6 +445,7 @@ def scheduler_loop():
 
 @app.route("/")
 def index():
+    trim_logs()
     status = "Active" if is_broadcasting() else "Idle"
     last_cmd = get_last_command()
     recent_logs = get_recent_logs()
@@ -636,6 +668,7 @@ def trigger_sequence():
         success, msg = compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed)
         
         # Log the preview generation action
+        trim_logs()
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = (
             f"[{timestamp}] ACTION: Sequence Preview Generation (WAV only)\n"
