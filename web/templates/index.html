@@ -1066,6 +1066,21 @@
                 </div>
 
                 <div style="margin-top: 1.25rem;">
+                    <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 0.85rem;">
+                        <span class="status-label" style="display: block; margin-bottom: 0.4rem;">Güvenlik & SSL Bağlantısı</span>
+                        <div id="sslStatusBox" style="font-size: 0.75rem; line-height: 1.5; font-family: 'Share Tech Mono', monospace; letter-spacing: 0.5px;">
+                            Yükleniyor...
+                        </div>
+                        <div style="margin-top: 0.75rem;">
+                            <a href="/download_ca" class="console-link" style="font-size: 0.7rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:currentColor;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                                Kök Sertifikayı İndir (localCA.pem)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.25rem;">
                     <button class="btn btn-red" id="btnStop" onclick="sendAction('stop')">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
                         Yayını Acil Durdur
@@ -2121,6 +2136,23 @@
             renderPlaylistQueue();
             showToast("Şifreli sayı grubu yayın akışına eklendi.", "success");
         }
+
+        // Check and update SSL Connection status in the UI
+        function checkSSLConnection() {
+            const sslStatusBox = document.getElementById("sslStatusBox");
+            if (!sslStatusBox) return;
+            
+            if (window.location.protocol === "https:") {
+                sslStatusBox.innerHTML = '<span class="console-log-success" style="font-weight: bold;">● GÜVENLİ BAĞLANTI (HTTPS)</span>';
+            } else {
+                const secureUrl = "https://" + window.location.hostname;
+                sslStatusBox.innerHTML = `
+                    <span class="console-log-fail" style="font-weight: bold;">● GÜVENLİ DEĞİL (HTTP)</span>
+                    <a href="${secureUrl}" style="color: var(--accent-orange); text-decoration: underline; display: block; margin-top: 4px; font-weight: bold;">HTTPS İle Güvenli Bağlan</a>
+                `;
+            }
+        }
+        checkSSLConnection();
 
         // Initialize block inputs visibility
         toggleBlockTypeFields();

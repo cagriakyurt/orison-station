@@ -661,6 +661,23 @@ def download_wav():
         mimetype="audio/wav"
     )
 
+@app.route("/download_ca")
+def download_ca():
+    ca_path = "/home/host/station/ssl/localCA.pem"
+    # Fallback to local static directory if we're debugging or path doesn't match
+    if not os.path.exists(ca_path):
+        ca_path = os.path.join(app.root_path, "static", "localCA.pem")
+    
+    if not os.path.exists(ca_path):
+        return "Root CA certificate not generated yet.", 404
+        
+    return send_file(
+        ca_path,
+        as_attachment=True,
+        download_name="orison_root_ca.crt",
+        mimetype="application/x-x509-ca-cert"
+    )
+
 @app.route("/log")
 def view_full_log():
     if not os.path.exists(ACTIONS_LOG):
