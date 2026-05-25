@@ -51,6 +51,11 @@
             opacity: 0.65;
         }
 
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             background-color: var(--bg-color);
             background-image: 
@@ -370,6 +375,7 @@
         select,
         textarea {
             width: 100%;
+            min-width: 0;
             background: rgba(5, 7, 12, 0.75);
             border: 1px solid var(--card-border);
             border-radius: 6px;
@@ -695,7 +701,7 @@
             font-size: 0.7rem;
             color: var(--text-secondary);
             word-break: break-all;
-            max-width: 400px;
+            max-width: 100%;
         }
 
         .playlist-item-delete {
@@ -807,6 +813,7 @@
         .audio-player-container {
             margin-bottom: 1.25rem;
             width: 100%;
+            overflow: hidden;
         }
         audio {
             width: 100%;
@@ -965,15 +972,19 @@
 
         @media (max-width: 600px) {
             body {
-                padding: 1.5rem 0.75rem;
+                padding: 1.5rem 0.5rem;
             }
             .card {
-                padding: 1.25rem 1rem;
+                padding: 1.25rem 0.75rem;
                 margin-bottom: 1.5rem;
             }
             .header-title {
                 font-size: 2.2rem !important;
                 letter-spacing: 3px !important;
+            }
+            .header-tag {
+                font-size: 0.6rem !important;
+                letter-spacing: 2px !important;
             }
             .header-info {
                 text-align: left;
@@ -1004,9 +1015,22 @@
                 align-items: flex-start;
                 gap: 0.75rem;
             }
+            .schedule-details {
+                width: 100%;
+                margin-right: 0;
+            }
+            .schedule-meta {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+            }
             .schedule-actions {
                 width: 100%;
                 justify-content: space-between;
+            }
+            .console {
+                padding: 0.75rem;
             }
         }
     </style>
