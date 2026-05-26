@@ -1,4 +1,4 @@
-# ORISON // Tactical Radio Terminal & FM RDS Station
+# ORISON // FM RDS Numbers Station & Tactical Radio Terminal
 
 ![ORISON Dashboard](web/static/dashboard.png)
 
