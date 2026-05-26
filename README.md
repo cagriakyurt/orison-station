@@ -2,9 +2,12 @@
 
 ![ORISON Dashboard](web/static/dashboard.png)
 
-ORISON is a mobile-first (PWA) modern web control terminal that enables a Raspberry Pi to broadcast FM signals and transmit dynamic RDS (Radio Data System) data directly via its GPIO pins using hardware DMA (Direct Memory Access).
+ORISON is a modern, PWA-supported web control terminal that gives users the opportunity to set up their own personal radio station over FM, enabling a Raspberry Pi to broadcast FM signals and transmit dynamic RDS (Radio Data System) data directly via its GPIO pins using hardware DMA (Direct Memory Access).
 
 Based on the **PiFmRds** core, this project adds advanced text-to-speech voice generation, a Morse code generator, digital bandpass audio filter effects, and background interference/noise simulations.
+
+> [!WARNING]
+> **LEGAL NOTICE:** Broadcasting on FM frequencies may be illegal in your country or region without an official license or authorization. This software is designed for educational, laboratory, and simulation purposes only. The user assumes all legal responsibility for any interference caused or regulatory compliance issues arising from the usage of this software.
 
 ---
 
@@ -192,9 +195,12 @@ This project is a retro CRT-themed standalone radio station terminal developed f
 
 ![ORISON Dashboard](web/static/dashboard.png)
 
-ORISON, Raspberry Pi'nin donanımsal DMA (Direct Memory Access) motorunu kullanarak GPIO pinleri üzerinden doğrudan FM yayını ve dinamik RDS (Radio Data System) verisi iletmesini sağlayan, mobil öncelikli (PWA) modern bir web kontrol terminalidir.
+ORISON, kullanıcılara FM üzerinden kendi kişisel radyo istasyonlarını kurma imkanı tanıyan ve Raspberry Pi'nin donanımsal DMA (Direct Memory Access) motorunu kullanarak GPIO pinleri üzerinden doğrudan FM yayını ve dinamik RDS (Radio Data System) verisi iletmesini sağlayan, PWA destekli modern bir web kontrol terminalidir.
 
 Bu proje, **PiFmRds** çekirdeğini taban alarak üzerine gelişmiş ses sentezleme (text-to-speech), Mors kodu üreteci, dijital bant geçiren ses filtre efektleri ve parazit simülasyonları ekler.
+
+> [!WARNING]
+> **YASAL UYARI:** Resmi bir lisans veya izin olmaksızın FM frekansları üzerinden radyo yayını yapmak ülkenizde veya bölgenizde yasa dışı olabilir. Bu yazılım yalnızca eğitim, laboratuvar ve simülasyon amaçları için tasarlanmıştır. Bu yazılımın kullanımından doğabilecek her türlü yasal sorumluluk ve frekans girişimlerinden kaynaklanan yaptırımlar tamamen kullanıcının sorumluluğundadır.
 
 ---
 
