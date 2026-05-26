@@ -9,6 +9,9 @@ Based on the **PiFmRds** core, this project adds advanced text-to-speech voice g
 > [!WARNING]
 > **LEGAL NOTICE:** Broadcasting on FM frequencies may be illegal in your country or region without an official license or authorization. This software is designed for educational, laboratory, and simulation purposes only. The user assumes all legal responsibility for any interference caused or regulatory compliance issues arising from the usage of this software.
 
+> [!CAUTION]
+> **SECURITY NOTICE:** The web interface and REST API endpoints (e.g. `/log`, `/download`, `/api/schedules`, `/api/otp/encrypt`, `/action`, `/action_sequence`) do NOT include authentication. This software is designed strictly for local area network (LAN) usage. Do NOT expose this web interface or its port (`8765`) to the public internet.
+
 ---
 
 ## 📡 Core Features
@@ -16,6 +19,8 @@ Based on the **PiFmRds** core, this project adds advanced text-to-speech voice g
 - **Dynamic Frequency Tuning (MHz):** Real-time frequency updates in the range of `87.5 - 108.0 MHz` using the slider on the interface.
 - **Dynamic RDS Control:** Real-time updates to the station name (PS - Program Service, max 8 chars) and detail text (RT - Radio Text, max 64 chars) during active broadcast.
 - **Broadcast Preview Mode:** Listen to any generated sequence or audio directly inside the browser before transmitting it over-the-air on FM.
+- **Espionage-Grade OTP Cipher:** Modulo-10 encryption to secure voice numbers station broadcasts with a downloadable key sheet.
+- **Automated Broadcast Scheduler:** Embedded SQLite-backed scheduler that runs pre-planned transmissions at specified dates/times.
 - **Tactical Audio Filters:**
   - *AM Radio Mode:* Standard military radio band simulation (bandpass filter).
   - *Bunker Echo:* Underground bunker simulation using reverb effects.
@@ -34,16 +39,18 @@ Based on the **PiFmRds** core, this project adds advanced text-to-speech voice g
 orison/
 ├── scripts/
 │   ├── orison                  # Main Python CLI management script
-│   └── orison-broadcast        # Bash script handling PiFmRds and DMA management
+│   ├── orison-broadcast        # Bash script handling PiFmRds and DMA management
+│   └── orison-stop             # Bash script to gracefully stop broadcasts
 ├── sudoers/
-│   └── orison                  # Sudoers configuration for passwordless systemctl/ln commands
+│   └── orison.template         # Sudoers policy template for passwordless systemctl/ln commands
 ├── systemd/
-│   └── orison-web.service      # Systemd service automatically starting the Flask web app
+│   └── orison-web.service.template # Systemd service template automatically starting the web app
 ├── web/
 │   ├── app.py                  # Flask backend service and REST API endpoints
 │   ├── static/                 # Manifest, Service Worker, and PWA icon assets
 │   └── templates/
 │       └── index.html          # HTML5/JS frontend dashboard with a retro CRT console design
+├── orison.db                   # SQLite database for scheduled tasks
 └── .gitignore                  # Gitignore file filtering temporary audio and log files
 ```
 
@@ -116,11 +123,11 @@ Set up CLI scripts globally, set permissions, and configure the web console serv
 ```bash
 cd ~/station
 
-# 1. Copy CLI wrapper scripts and make them executable
-sudo cp scripts/orison /usr/local/bin/orison
-sudo cp scripts/orison-broadcast /usr/local/bin/orison-broadcast
-sudo cp scripts/orison-stop /usr/local/bin/orison-stop
-sudo chmod +x /usr/local/bin/orison /usr/local/bin/orison-broadcast /usr/local/bin/orison-stop
+# 1. Set script execution permissions and create symbolic links
+chmod +x scripts/orison scripts/orison-broadcast scripts/orison-stop
+sudo ln -sf "$PWD/scripts/orison" /usr/local/bin/orison
+sudo ln -sf "$PWD/scripts/orison-broadcast" /usr/local/bin/orison-broadcast
+sudo ln -sf "$PWD/scripts/orison-stop" /usr/local/bin/orison-stop
 
 # 2. Configure passwordless transmitter rights via sudoers
 sed "s|{{USER}}|$USER|g; s|{{HOME}}|$HOME|g" sudoers/orison.template > /tmp/orison-sudoers
@@ -153,16 +160,16 @@ sudo systemctl start orison-web.service
 Use the following commands to test local updates, push to GitHub, or pull changes onto the Pi:
 
 ### 1. Sync Changes with the Raspberry Pi
-To upload your local developments (e.g. from a Macbook) to the Pi and automatically restart the service in a single command, run the helper script:
+To upload your local developments to the Pi and automatically restart the service in a single command, run the sync helper script:
 ```bash
-python3 /Users/cagri/.gemini/antigravity/scratch/ssh_sync.py
+python3 path/to/ssh_sync.py
 ```
 
 ### 2. Push Changes to GitHub
 To push local changes up to the GitHub repository:
 ```bash
 # Go to project directory
-cd /Users/cagri/.gemini/antigravity/scratch/orison
+cd path/to/orison
 
 # Stage files (.gitignore automatically filters temporary audio and logs)
 git add .
