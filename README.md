@@ -186,6 +186,6 @@ git pull
 
 ## 👨‍💻 Developer Information
 
-This project is a retro CRT-themed standalone radio station terminal developed for Raspberry Pi-based tactical communications and simulation systems.
+This project was built and developed using **Google Antigravity**, an agentic AI coding assistant designed by Google DeepMind.
 
 
