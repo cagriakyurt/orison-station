@@ -42,7 +42,7 @@ orison/
 │   ├── orison-broadcast        # Bash script handling PiFmRds and DMA management
 │   └── orison-stop             # Bash script to gracefully stop broadcasts
 ├── sudoers/
-│   └── orison.template         # Sudoers policy template for passwordless systemctl/ln commands
+│   └── orison.template         # Sudoers policy template for passwordless PiFmRds/orison-stop access
 ├── systemd/
 │   └── orison-web.service.template # Systemd service template automatically starting the web app
 ├── web/
@@ -50,7 +50,7 @@ orison/
 │   ├── static/                 # Manifest, Service Worker, and PWA icon assets
 │   └── templates/
 │       └── index.html          # HTML5/JS frontend dashboard with a retro CRT console design
-├── orison.db                   # SQLite database for scheduled tasks
+├── orison.db                   # Runtime SQLite database for scheduled tasks, created automatically
 └── .gitignore                  # Gitignore file filtering temporary audio and log files
 ```
 
@@ -60,7 +60,7 @@ orison/
 
 ### Method A: Automatic Installation (Recommended)
 
-You can automatically install the project using a single command. The installation script (`install.sh`) installs system dependencies, compiles the `PiFmRds` module, automatically detects the username on the new Pi, and dynamically updates all paths (e.g. replacing `/home/host` with `/home/pi` as needed) in the configuration templates.
+You can automatically install the project using a single command. The installation script (`install.sh`) installs system dependencies, compiles the `PiFmRds` module, detects the current user and generates the systemd and sudoers configurations from templates, while the CLI scripts resolve the project directory dynamically through symlinks.
 
 1. Clone the repository onto the Pi:
    ```bash
@@ -109,13 +109,8 @@ cd ~
 git clone https://github.com/cagriakyurt/orison-station.git station
 ```
 
-#### Step 4: Update Username Paths (If Necessary)
-If your username on the Pi is **not** `host` (e.g. it is `pi`), run the following command to update paths:
-```bash
-cd ~/station
-# Replace 'host' with your actual username (e.g., 'pi')
-find . -type f -not -path '*/.*' -exec sed -i 's/home\/host/home\/pi/g' {} +
-```
+#### Step 4: Username and Path Handling
+No manual path replacement is required. ORISON resolves its project directory dynamically via symlinks, and the sudoers/systemd files are generated from templates using the current `$USER`, `$HOME`, and `$PWD` values.
 
 #### Step 5: Install System Configs and Services
 Set up CLI scripts globally, set permissions, and configure the web console service to start on boot:
