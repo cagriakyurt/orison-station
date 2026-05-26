@@ -2,7 +2,7 @@
 
 ![ORISON Dashboard](web/static/dashboard.png)
 
-ORISON is a modern, PWA-supported web control terminal that gives users the opportunity to set up their own personal radio station over FM, enabling a Raspberry Pi to broadcast FM signals and transmit dynamic RDS (Radio Data System) data directly via its GPIO pins using hardware DMA (Direct Memory Access).
+ORISON is a modern, PWA-supported web control terminal that gives users the opportunity to set up their own personal numbers station over FM, enabling a Raspberry Pi to broadcast FM signals and transmit dynamic RDS (Radio Data System) data directly via its GPIO pins using hardware DMA (Direct Memory Access).
 
 Based on the **PiFmRds** core, this project adds advanced text-to-speech voice generation, a Morse code generator, digital bandpass audio filter effects, and background interference/noise simulations.
 
@@ -195,7 +195,7 @@ This project is a retro CRT-themed standalone radio station terminal developed f
 
 ![ORISON Dashboard](web/static/dashboard.png)
 
-ORISON, kullanıcılara FM üzerinden kendi kişisel radyo istasyonlarını kurma imkanı tanıyan ve Raspberry Pi'nin donanımsal DMA (Direct Memory Access) motorunu kullanarak GPIO pinleri üzerinden doğrudan FM yayını ve dinamik RDS (Radio Data System) verisi iletmesini sağlayan, PWA destekli modern bir web kontrol terminalidir.
+ORISON, kullanıcılara FM üzerinden kendi kişisel sayı istasyonlarını (numbers station) kurma imkanı tanıyan ve Raspberry Pi'nin donanımsal DMA (Direct Memory Access) motorunu kullanarak GPIO pinleri üzerinden doğrudan FM yayını ve dinamik RDS (Radio Data System) verisi iletmesini sağlayan, PWA destekli modern bir web kontrol terminalidir.
 
 Bu proje, **PiFmRds** çekirdeğini taban alarak üzerine gelişmiş ses sentezleme (text-to-speech), Mors kodu üreteci, dijital bant geçiren ses filtre efektleri ve parazit simülasyonları ekler.
 
