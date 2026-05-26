@@ -2078,6 +2078,9 @@
         }
 
         function applyTranslations() {
+            // Update document lang to ensure correct uppercase rendering for Turkish/English locales
+            document.documentElement.lang = currentLang;
+
             // Translate elements with data-i18n
             document.querySelectorAll("[data-i18n]").forEach(el => {
                 const key = el.getAttribute("data-i18n");
