@@ -80,7 +80,7 @@ You can automatically install the project using a single command. The installati
 If you prefer to run the setup steps manually instead of using the automated script:
 
 > [!IMPORTANT]
-> **Username Note:** Default paths in project files are configured for the user `host`. If your username on the Raspberry Pi is different (e.g. the standard `pi`), you must run the username update command in **Step 4** before configuring the services.
+> **Username Note:** ORISON no longer requires manual username/path replacement. The installer and manual setup commands generate systemd and sudoers files from templates using your current `$USER`, `$HOME`, and `$PWD` values.
 
 #### Step 1: Install Basic Dependencies
 Open a terminal on your Pi and install voice synthesis, audio processing, and web server tools:
