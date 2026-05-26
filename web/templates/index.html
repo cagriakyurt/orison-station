@@ -123,6 +123,41 @@
             font-weight: normal;
         }
 
+        /* Language Selector Switch */
+        .lang-switch {
+            display: flex;
+            background: rgba(5, 7, 12, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.12);
+            border-radius: 6px;
+            padding: 3px;
+            gap: 4px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.3rem 0.75rem;
+            font-size: 0.75rem;
+            font-family: 'Share Tech Mono', monospace;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+            font-weight: bold;
+        }
+
+        .lang-btn:hover {
+            color: #ffffff;
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        .lang-btn.active {
+            color: #020407;
+            background: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+
         main {
             width: 100%;
             max-width: 1100px;
@@ -1015,13 +1050,20 @@
 
     <header>
         <div class="header-title-container">
-            <span class="header-tag">Güvenli İletişim Konsolu</span>
+            <span class="header-tag" data-i18n="header_tag">Güvenli İletişim Konsolu</span>
             <h1 class="header-title">ORISON</h1>
         </div>
-        <div class="header-info">
-            FREKANS: <span id="headerFreq">107.9 MHz</span>
+        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+            <div class="lang-switch">
+                <button class="lang-btn active" id="btnLangTr" onclick="switchLang('tr')">TR</button>
+                <button class="lang-btn" id="btnLangEn" onclick="switchLang('en')">EN</button>
+            </div>
+            <div class="header-info">
+                <span data-i18n="frequency_label">FREKANS:</span> <span id="headerFreq">107.9 MHz</span>
+            </div>
         </div>
     </header>
+
 
     <main>
         <!-- SIDEBAR: STATUS & PARAMETERS -->
@@ -1031,7 +1073,7 @@
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                    Sinyal Telemetrisi
+                    <span data-i18n="card_telemetry_title">Sinyal Telemetrisi</span>
                 </div>
                 
                 <div class="status-display" id="statusBox">
@@ -1040,8 +1082,8 @@
                             <div class="radar-dot"></div>
                         </div>
                         <div class="status-info">
-                            <span class="status-label">Verici Durumu</span>
-                            <span class="status-value" id="statusText">YÜKLENİYOR...</span>
+                            <span class="status-label" data-i18n="lbl_transmitter_status">Verici Durumu</span>
+                            <span class="status-value" id="statusText" data-i18n="status_loading">YÜKLENİYOR...</span>
                         </div>
                     </div>
                     
@@ -1060,15 +1102,15 @@
                 
                 <div style="margin-top: 1.25rem;">
                     <div class="last-cmd-container">
-                        <span class="status-label">Son Tetiklenen Komut</span>
-                        <div class="last-cmd-box" id="lastCmd">Veri yükleniyor...</div>
+                        <span class="status-label" data-i18n="lbl_last_cmd">Son Tetiklenen Komut</span>
+                        <div class="last-cmd-box" id="lastCmd" data-i18n="cmd_loading">Veri yükleniyor...</div>
                     </div>
                 </div>
 
                 <div style="margin-top: 1.25rem;">
                     <button class="btn btn-red" id="btnStop" onclick="sendAction('stop')">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
-                        Yayını Acil Durdur
+                        <span data-i18n="btn_stop">Yayını Acil Durdur</span>
                     </button>
                 </div>
             </div>
@@ -1077,11 +1119,11 @@
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
-                    Yayın Parametreleri
+                    <span data-i18n="card_params_title">Yayın Parametreleri</span>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Yayın Frekansı (MHz)</label>
+                    <label class="form-label" data-i18n="lbl_freq">Yayın Frekansı (MHz)</label>
                     <div class="range-container">
                         <input type="range" id="broadcastFreq" value="107.9" min="87.5" max="108.0" step="0.1" oninput="updateFreqDisplay(this.value)">
                         <span class="range-value" id="broadcastFreqVal">107.9</span>
@@ -1089,31 +1131,31 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">RDS İstasyon Kimliği (PS)</label>
+                    <label class="form-label" data-i18n="lbl_ps">RDS İstasyon Kimliği (PS)</label>
                     <input type="text" id="rdsPs" value="ORISON" maxlength="8" placeholder="Max 8 Karakter">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">RDS Detay Metni (RT)</label>
+                    <label class="form-label" data-i18n="lbl_rt">RDS Detay Metni (RT)</label>
                     <input type="text" id="rdsRt" value="ATTENTION" maxlength="64" placeholder="Max 64 Karakter">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Ses Filtre Efekti</label>
+                    <label class="form-label" data-i18n="lbl_filter">Ses Filtre Efekti</label>
                     <select id="filterSelect">
-                        <option value="am">AM Telsiz Modu (Varsayılan)</option>
-                        <option value="bunker">Taktik Sığınak Yankısı (Echo)</option>
-                        <option value="tape">Bant Sürüklenmesi (Tremolo)</option>
-                        <option value="saturate">Sovyet Vakum Tüp Satürasyonu</option>
-                        <option value="qsb">İyonosferik Sinyal Dalgalanması (QSB)</option>
-                        <option value="flutter">Analog Bant Titremesi (Flutter)</option>
-                        <option value="none">Filtresiz (Ham Net Ses)</option>
+                        <option value="am" data-i18n="filter_am">AM Telsiz Modu (Varsayılan)</option>
+                        <option value="bunker" data-i18n="filter_bunker">Taktik Sığınak Yankısı (Echo)</option>
+                        <option value="tape" data-i18n="filter_tape">Bant Sürüklenmesi (Tremolo)</option>
+                        <option value="saturate" data-i18n="filter_saturate">Sovyet Vakum Tüp Satürasyonu</option>
+                        <option value="qsb" data-i18n="filter_qsb">İyonosferik Sinyal Dalgalanması (QSB)</option>
+                        <option value="flutter" data-i18n="filter_flutter">Analog Bant Titremesi (Flutter)</option>
+                        <option value="none" data-i18n="filter_none">Filtresiz (Ham Net Ses)</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <div class="switch-container">
-                        <span class="form-label" style="margin-bottom:0;">Kısa Dalga Paraziti (Gürültü)</span>
+                        <span class="form-label" style="margin-bottom:0;" data-i18n="lbl_noise">Kısa Dalga Paraziti (Gürültü)</span>
                         <label class="switch">
                             <input type="checkbox" id="noiseToggle" checked>
                             <span class="slider"></span>
@@ -1122,7 +1164,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Mors Bip Frekansı (Hz)</label>
+                    <label class="form-label" data-i18n="lbl_morse_freq">Mors Bip Frekansı (Hz)</label>
                     <div class="range-container">
                         <input type="range" id="morseFreq" value="650" min="400" max="1000" step="50" oninput="document.getElementById('morseFreqVal').textContent = this.value">
                         <span class="range-value" id="morseFreqVal">650</span>
@@ -1130,7 +1172,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Mors Bip Hızı (Word Unit)</label>
+                    <label class="form-label" data-i18n="lbl_morse_speed">Mors Bip Hızı (Word Unit)</label>
                     <div class="range-container">
                         <input type="range" id="morseSpeed" value="0.09" min="0.05" max="0.20" step="0.01" oninput="document.getElementById('morseSpeedVal').textContent = this.value">
                         <span class="range-value" id="morseSpeedVal">0.09</span>
@@ -1142,24 +1184,24 @@
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-                    Ses Deposu
+                    <span data-i18n="card_archive_title">Ses Deposu</span>
                 </div>
                 
                 <div class="audio-player-container">
                     <audio id="audioPlayer" controls>
                         <source src="/download" type="audio/wav">
-                        Tarayıcınız ses çalma özelliğini desteklemiyor.
+                        <span data-i18n="audio_fallback">Tarayıcınız ses çalma özelliğini desteklemiyor.</span>
                     </audio>
                 </div>
 
                 <div class="btn-group">
                     <a href="/download?download=true" class="btn btn-cyan" id="btnDownload" target="_blank">
                         <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-                        WAV Dosyasını İndir
+                        <span data-i18n="btn_download_wav">WAV Dosyasını İndir</span>
                     </a>
                     <button class="btn btn-orange" id="btnBroadcastLast" onclick="sendAction('broadcast_last')">
                         <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                        Son Kaydı Yayınla
+                        <span data-i18n="btn_broadcast_last">Son Kaydı Yayınla</span>
                     </button>
                 </div>
             </div>
@@ -1168,39 +1210,42 @@
         <!-- MAIN WORKSPACE: CONTROL COCKPIT -->
         <div style="display: flex; flex-direction: column; gap: 2rem;">
             
+        <!-- MAIN WORKSPACE: CONTROL COCKPIT -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
             <!-- SEQUENCE PLAYLIST QUEUE BUILDER CARD -->
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/></svg>
-                    Yayın Akışı Sıralayıcı
+                    <span data-i18n="card_queue_title">Yayın Akışı Sıralayıcı</span>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;" data-i18n="queue_desc">
                     Farklı yayın modlarını sıraya ekleyerek kesintisiz ve karmaşık yayın akışları oluşturun. Sıradaki tüm sesler birleştirilerek tek seferde yayınlanır.
                 </p>
 
                 <!-- Queue Display list -->
                 <div class="playlist-wrapper" id="playlistQueue">
-                    <div class="playlist-empty" id="playlistEmpty">Sıra boş. Aşağıdaki panelden blok ekleyin.</div>
+                    <div class="playlist-empty" id="playlistEmpty" data-i18n="queue_empty">Sıra boş. Aşağıdaki panelden blok ekleyin.</div>
                 </div>
 
                 <!-- Add block controls -->
                 <div style="border: 1px solid rgba(0,240,255,0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2); margin-bottom: 1.5rem;">
-                    <div class="form-label" style="color: #ffffff; font-size: 0.8rem; margin-bottom: 1rem;">Sıraya Blok Ekle</div>
+                    <div class="form-label" style="color: #ffffff; font-size: 0.8rem; margin-bottom: 1rem;" data-i18n="lbl_add_block_title">Sıraya Blok Ekle</div>
                     
                     <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
                         <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">Blok Tipi</label>
+                            <label class="form-label" data-i18n="lbl_block_type">Blok Tipi</label>
                             <select id="blockTypeSelect" onchange="toggleBlockTypeFields()">
-                                <option value="id">Tanıtıcı Anons (ID)</option>
-                                <option value="numbers">Sayı Dizisi (Numbers)</option>
-                                <option value="say">Yapay Ses Metni (Say)</option>
-                                <option value="morse">Mors Kod Metni (Morse)</option>
+                                <option value="id" data-i18n="opt_type_id">Tanıtıcı Anons (ID)</option>
+                                <option value="numbers" data-i18n="opt_type_numbers">Sayı Dizisi (Numbers)</option>
+                                <option value="say" data-i18n="opt_type_say">Yapay Ses Metni (Say)</option>
+                                <option value="morse" data-i18n="opt_type_morse">Mors Kod Metni (Morse)</option>
                             </select>
                         </div>
 
                         <!-- Count selector (Numbers mode) -->
                         <div class="form-group" id="blockGroupNumbers" style="display:none; margin-bottom:0;">
-                            <label class="form-label">Grup Sayısı</label>
+                            <label class="form-label" data-i18n="lbl_group_count">Grup Sayısı</label>
                             <div class="range-container">
                                 <input type="range" id="blockNumbersCount" value="12" min="1" max="50" oninput="document.getElementById('blockNumbersVal').textContent = this.value">
                                 <span class="range-value" id="blockNumbersVal">12</span>
@@ -1209,14 +1254,14 @@
 
                         <!-- Text selector (Say and Morse modes) -->
                         <div class="form-group" id="blockGroupText" style="display:none; margin-bottom:0;">
-                            <label class="form-label">Blok Mesaj Metni</label>
+                            <label class="form-label" data-i18n="lbl_block_msg_text">Blok Mesaj Metni</label>
                             <textarea id="blockTextPayload" rows="2" placeholder="Mesajı yazın..."></textarea>
                         </div>
                     </div>
 
                     <button class="btn btn-orange" onclick="addBlockToPlaylist()">
                         <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                        Bloğu Sıraya Ekle
+                        <span data-i18n="btn_add_block">Bloğu Sıraya Ekle</span>
                     </button>
                 </div>
 
@@ -1224,14 +1269,14 @@
                 <div class="btn-group" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
                     <button class="btn btn-orange" onclick="broadcastSequence(false)">
                         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        Sırayı Önizle
+                        <span data-i18n="btn_preview_sequence">Sırayı Önizle</span>
                     </button>
                     <button class="btn btn-cyan" id="btnRunSequence" onclick="broadcastSequence(true)">
                         <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                        Yayın Akışını Başlat
+                        <span data-i18n="btn_start_sequence">Yayın Akışını Başlat</span>
                     </button>
                     <button class="btn btn-grey" onclick="clearPlaylistQueue()">
-                        Sırayı Temizle
+                        <span data-i18n="btn_clear_sequence">Sırayı Temizle</span>
                     </button>
                 </div>
             </div>
@@ -1240,9 +1285,9 @@
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:var(--accent-orange);"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-                    Kriptografik Şifreleme Modülü
+                    <span data-i18n="card_otp_title">Kriptografik Şifreleme Modülü</span>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;">
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;" data-i18n="otp_desc">
                     Metin mesajlarını modulo-10 One-Time Pad şifreleme algoritması kullanarak 5'li sayı gruplarına dönüştürün. Üretilen sayıları doğrudan yayınlayabilir veya yayın sırasına ekleyebilirsiniz.
                 </p>
 
@@ -1250,26 +1295,26 @@
                     <!-- Input Section -->
                     <div style="display: flex; flex-direction: column; gap: 1rem;">
                         <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">Düz Metin Mesajı (A-Z, Boşluk, Nokta, Soru İşareti, Tire)</label>
-                            <textarea id="otpPlaintext" rows="2" placeholder="Şifrelenecek mesajı yazın... Örn: ORISON ACTIVE."></textarea>
+                            <label class="form-label" data-i18n="lbl_otp_plaintext">Düz Metin Mesajı (A-Z, Boşluk, Nokta, Soru İşareti, Tire)</label>
+                            <textarea id="otpPlaintext" rows="2" placeholder="Şifrelenecek mesajı yazın... Örn: ORISON ACTIVE." data-i18n-placeholder="ph_otp_plaintext"></textarea>
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">Özel Anahtar Rakamları (İsteğe Bağlı - Boş bırakılırsa rastgele üretilir)</label>
-                            <input type="text" id="otpCustomKey" placeholder="Sadece rakam girin..." oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <label class="form-label" data-i18n="lbl_otp_key">Özel Anahtar Rakamları (İsteğe Bağlı - Boş bırakılırsa rastgele üretilir)</label>
+                            <input type="text" id="otpCustomKey" placeholder="Sadece rakam girin..." data-i18n-placeholder="ph_otp_key" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                         <button class="btn btn-orange" onclick="encryptOTP()">
                             <svg viewBox="0 0 24 24"><path d="M12.65 11.3c.66-.54 1.07-1.35 1.07-2.25 0-1.66-1.34-3-3-3s-3 1.34-3 3c0 .9.41 1.71 1.07 2.25L3 17v4h4v-2h2v-2h2v-2l1.65-1.7zM10.72 7.72c.41 0 .75.34.75.75s-.34.75-.75.75-.75-.34-.75-.75.34-.75.75-.75z"/></svg>
-                            Şifrele ve Hazırla
+                            <span data-i18n="btn_encrypt_prepare">Şifrele ve Hazırla</span>
                         </button>
                     </div>
 
                     <!-- Output Section -->
                     <div id="otpResultPanel" style="display: none; border-top: 1px solid rgba(255, 123, 0, 0.15); padding-top: 1.5rem; flex-direction: column; gap: 1rem;">
                         <div style="background: rgba(5,7,12,0.6); border: 1px solid rgba(255,123,0,0.15); border-radius: 8px; padding: 1.25rem;">
-                            <div class="form-label" style="color: var(--accent-orange); font-size: 0.75rem; text-shadow: var(--glow-orange); margin-bottom: 0.5rem;">ŞİFRELİ MESAJ (CIPHERTEXT)</div>
+                            <div class="form-label" style="color: var(--accent-orange); font-size: 0.75rem; text-shadow: var(--glow-orange); margin-bottom: 0.5rem;" data-i18n="lbl_ciphertext">ŞİFRELİ MESAJ (CIPHERTEXT)</div>
                             <div id="otpCiphertextDisplay" style="font-family: 'Fira Code', monospace; font-size: 1.2rem; color: #ffffff; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.2); margin-bottom: 1.25rem;"></div>
                             
-                            <div class="form-label" style="color: var(--accent-cyan); font-size: 0.75rem; text-shadow: var(--glow-cyan); margin-bottom: 0.5rem;">ŞİFRE ANAHTARI (OTP KEY)</div>
+                            <div class="form-label" style="color: var(--accent-cyan); font-size: 0.75rem; text-shadow: var(--glow-cyan); margin-bottom: 0.5rem;" data-i18n="lbl_used_key">ŞİFRE ANAHTARI (OTP KEY)</div>
                             <div id="otpKeyDisplay" style="font-family: 'Fira Code', monospace; font-size: 1.2rem; color: var(--accent-cyan); letter-spacing: 2px; text-shadow: var(--glow-cyan); margin-bottom: 0.5rem;"></div>
                         </div>
 
@@ -1280,17 +1325,17 @@
                                 <input type="hidden" name="key" id="otpDL_key">
                                 <button type="submit" class="btn btn-grey" style="width: 100%;">
                                     <svg viewBox="0 0 24 24" style="fill: currentColor; width:14px; height:14px;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-                                    Anahtarı İndir
+                                    <span data-i18n="btn_download_key">Anahtarı İndir</span>
                                 </button>
                             </form>
                             
                             <button class="btn btn-orange" onclick="broadcastOTP()">
                                 <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                                Sayı Olarak Yayınla
+                                <span data-i18n="btn_broadcast_otp">Sayı Olarak Yayınla</span>
                             </button>
                             <button class="btn btn-cyan" onclick="addOTPToSequence()">
                                 <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                                Akış Sırasına Ekle
+                                <span data-i18n="btn_add_to_queue">Akış Sırasına Ekle</span>
                             </button>
                         </div>
                     </div>
@@ -1301,9 +1346,9 @@
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:var(--accent-cyan);"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm-5-8h-5v5h5v-5z"/></svg>
-                    Yayın Planlayıcı
+                    <span data-i18n="card_scheduler_title">Yayın Planlayıcı</span>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;">
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;" data-i18n="scheduler_desc">
                     Belirli bir tarih ve saatte otomatik yayın yapılması için görev planlayın. Zamanlanan saat geldiğinde aktif bir yayın varsa kesilir ve zamanlanan yayın öncelikli olarak başlar.
                 </p>
 
@@ -1311,38 +1356,33 @@
                     <!-- Left Column: Add Schedule Form -->
                     <div class="scheduler-form-col">
                         <div class="form-group">
-                            <label class="form-label">Yayın Tarih ve Saati</label>
+                            <label class="form-label" data-i18n="lbl_sched_time">Yayın Tarih ve Saati</label>
                             <input type="datetime-local" id="schedTime" step="60">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Yayınlanacak İçerik</label>
+                            <label class="form-label" data-i18n="lbl_sched_content">Yayınlanacak İçerik</label>
                             <select id="schedActionType" onchange="toggleSchedFields()">
-                                <option value="sequence">Mevcut Sıralı Yayın Akışı (Current Playlist)</option>
-                                <option value="say">Tekil Yapay Ses Metni (Voice / Say)</option>
-                                <option value="morse">Tekil Mors Kod Metni (Morse)</option>
+                                <option value="sequence" data-i18n="opt_sched_sequence">Mevcut Sıralı Yayın Akışı (Current Playlist)</option>
+                                <option value="say" data-i18n="opt_sched_say">Tekil Yapay Ses Metni (Voice / Say)</option>
+                                <option value="morse" data-i18n="opt_sched_morse">Tekil Mors Kod Metni (Morse)</option>
                             </select>
                         </div>
 
                         <div class="form-group" id="schedTextGroup" style="display: none;">
-                            <label class="form-label">Mesaj Metni</label>
-                            <textarea id="schedTextPayload" rows="3" placeholder="Yayınlanacak metni buraya yazın..." style="resize: vertical; min-height: 80px;"></textarea>
+                            <label class="form-label" data-i18n="lbl_sched_msg_text">Mesaj Metni</label>
+                            <textarea id="schedTextPayload" rows="3" placeholder="Yayınlanacak metni buraya yazın..." data-i18n-placeholder="ph_sched_msg_text" style="resize: vertical; min-height: 80px;"></textarea>
                         </div>
 
                         <button class="btn btn-cyan" onclick="addSchedule()">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>
-                            Yayın Zamanla
-                        </button>
-                    </div>
-
-                    <!-- Right Column: Active & Past Schedules List -->
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2                    <!-- Right Column: Active & Past Schedules List -->
                     <div>
                         <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                            <span>Zamanlanmış Yayın Listesi</span>
-                            <span style="font-size: 0.7rem; color: var(--accent-cyan); cursor: pointer;" onclick="loadSchedules()">Yenile</span>
+                            <span data-i18n="lbl_sched_list">Zamanlanmış Yayın Listesi</span>
+                            <span style="font-size: 0.7rem; color: var(--accent-cyan); cursor: pointer;" onclick="loadSchedules()" data-i18n="lbl_refresh">Yenile</span>
                         </div>
                         <div class="schedule-list" id="scheduleListContainer">
-                            <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 2rem;">Yükleniyor...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 2rem;" data-i18n="sched_loading">Yükleniyor...</div>
                         </div>
                     </div>
                 </div>
@@ -1352,7 +1392,7 @@
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                    Tekil İstasyon Kontrolleri
+                    <span data-i18n="card_single_title">Tekil İstasyon Kontrolleri</span>
                 </div>
                 
                 <div class="grid-panel-container">
@@ -1360,34 +1400,34 @@
                     <!-- STATION ID CARD -->
                     <div style="display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
                         <div>
-                            <span class="tag-pill">Mod: ID</span>
-                            <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">İstasyon Tanıtım Kodu</div>
+                            <span class="tag-pill" data-i18n="tag_mode_id">Mod: ID</span>
+                            <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;" data-i18n="lbl_station_id_title">İstasyon Tanıtım Kodu</div>
                             <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1.25rem 0; line-height: 1.5;">
-                                İstasyonu tanıtan standart anonsu seslendirir ve yayınlar:
+                                <span data-i18n="id_desc">İstasyonu tanıtan standart anonsu seslendirir ve yayınlar:</span>
                                 <span style="display:block; margin-top: 5px; font-style: italic; color: var(--accent-cyan);">"This is Orison station. Signal begins."</span>
                             </p>
                         </div>
                         <div class="btn-group btn-group-row">
                             <button class="btn btn-orange" onclick="sendAction('make_id')">
                                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                Önizle
+                                <span data-i18n="btn_preview">Önizle</span>
                             </button>
                             <button class="btn btn-cyan" onclick="sendAction('id')">
                                 <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                                Yayınla
+                                <span data-i18n="btn_broadcast">Yayınla</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- NUMBERS GENERATOR CARD -->
                     <div style="border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
-                        <span class="tag-pill">Mod: NUMBERS</span>
-                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">Sayı Dizisi Jeneratörü</div>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;">
+                        <span class="tag-pill" data-i18n="tag_mode_numbers">Mod: NUMBERS</span>
+                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;" data-i18n="lbl_numbers_gen_title">Sayı Dizisi Jeneratörü</div>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;" data-i18n="numbers_desc">
                             Rastgele 5'li sayı grupları seslendirir. Başlangıçta "Attention", sonda "End of transmission" eklenir.
                         </p>
                         <div class="form-group">
-                            <label class="form-label">Grup Sayısı</label>
+                            <label class="form-label" data-i18n="lbl_group_count">Grup Sayısı</label>
                             <div class="range-container">
                                 <input type="range" id="numbersCount" value="12" min="1" max="50" oninput="document.getElementById('numbersVal').textContent = this.value">
                                 <span class="range-value" id="numbersVal">12</span>
@@ -1396,57 +1436,57 @@
                         <div class="btn-group btn-group-row">
                             <button class="btn btn-orange" onclick="triggerNumbers(true)">
                                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                Önizle
+                                <span data-i18n="btn_preview">Önizle</span>
                             </button>
                             <button class="btn btn-cyan" onclick="triggerNumbers(false)">
                                 <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                                Yayınla
+                                <span data-i18n="btn_broadcast">Yayınla</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- SAY TEXT SPEECH CARD -->
                     <div style="grid-column: 1 / -1; border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
-                        <span class="tag-pill">Mod: SAY</span>
-                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">Yapay Ses Sentezleyici</div>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;">
+                        <span class="tag-pill" data-i18n="tag_mode_say">Mod: SAY</span>
+                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;" data-i18n="lbl_synth_voice_title">Yapay Ses Sentezleyici</div>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;" data-i18n="say_desc">
                             Yazdığınız metni ses sentezleyici ile seslendirip yayına verir.
                         </p>
                         <div class="form-group">
-                            <label class="form-label">Mesaj Metni (İngilizce)</label>
-                            <textarea id="sayText" rows="3" placeholder="Sentezlenecek mesajı girin... Örn: The northern relay is silent."></textarea>
+                            <label class="form-label" data-i18n="lbl_say_msg_text">Mesaj Metni (İngilizce)</label>
+                            <textarea id="sayText" rows="3" placeholder="Sentezlenecek mesajı girin... Örn: The northern relay is silent." data-i18n-placeholder="ph_say_msg_text"></textarea>
                         </div>
                         <div class="btn-group btn-group-row">
                             <button class="btn btn-orange" onclick="triggerSay(true)">
                                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                Önizle
+                                <span data-i18n="btn_preview">Önizle</span>
                             </button>
                             <button class="btn btn-cyan" onclick="triggerSay(false)">
                                 <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                                Sentezle & Yayınla
+                                <span data-i18n="btn_synth_broadcast">Sentezle & Yayınla</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- MORSE TRANSMITTER CARD -->
                     <div style="grid-column: 1 / -1; border: 1px solid rgba(0, 240, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
-                        <span class="tag-pill">Mod: MORSE</span>
-                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;">Mors Kodu Vericisi</div>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;">
+                        <span class="tag-pill" data-i18n="tag_mode_morse">Mod: MORSE</span>
+                        <div class="form-label" style="font-size: 0.8rem; color: #ffffff; margin-top: 0.75rem;" data-i18n="lbl_morse_title">Mors Kodu Vericisi</div>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem 0; line-height: 1.5;" data-i18n="morse_desc">
                             Metni Mors koduna dönüştürür ve ses sinyali üreterek yayınlar.
                         </p>
                         <div class="form-group">
-                            <label class="form-label">Mors Mesajı</label>
-                            <textarea id="morseText" rows="2" placeholder="Mors koduna çevrilecek metin... Örn: ORISON ATTENTION"></textarea>
+                            <label class="form-label" data-i18n="lbl_morse_msg_text">Mors Mesajı</label>
+                            <textarea id="morseText" rows="2" placeholder="Mors koduna çevrilecek metin... Örn: ORISON ATTENTION" data-i18n-placeholder="ph_morse_msg_text"></textarea>
                         </div>
                         <div class="btn-group btn-group-row">
                             <button class="btn btn-orange" onclick="triggerMorse(true)">
                                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                Önizle
+                                <span data-i18n="btn_preview">Önizle</span>
                             </button>
                             <button class="btn btn-cyan" onclick="triggerMorse(false)">
                                 <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                                Morsu Yayınla
+                                <span data-i18n="btn_broadcast_morse">Morsu Yayınla</span>
                             </button>
                         </div>
                     </div>
@@ -1458,16 +1498,16 @@
             <div class="card full-width-card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M20 19.59V8l-6-6H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c.45 0 .85-.15 1.19-.4l-4.43-4.43c-.8.52-1.74.83-2.76.83-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5c0 1.02-.31 1.96-.83 2.75L20 19.59zM9 13c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3z"/></svg>
-                    Sistem Log Kayıtları
+                    <span data-i18n="card_logs_title">Sistem Log Kayıtları</span>
                 </div>
                 <div class="console-actions">
                     <a href="/log" target="_blank" class="console-link">
                         <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-                        Tam Log Dosyasını Aç
+                        <span data-i18n="btn_open_full_log">Tam Log Dosyasını Aç</span>
                     </a>
                 </div>
                 <div class="console-container">
-                    <div class="console" id="consoleLogs">Sistem log verileri yükleniyor...</div>
+                    <div class="console" id="consoleLogs" data-i18n="logs_loading">Sistem log verileri yükleniyor...</div>
                 </div>
             </div>
             
@@ -1477,6 +1517,608 @@
     <div class="toast-notification" id="toast"></div>
 
     <script>
+        // CLIENT-SIDE MULTI-LANGUAGE TRANSLATION SYSTEM
+        const translations = {
+            // General / Header
+            "header_tag": {
+                "tr": "Güvenli İletişim Konsolu",
+                "en": "Secure Communication Console"
+            },
+            "frequency_label": {
+                "tr": "FREKANS:",
+                "en": "FREQUENCY:"
+            },
+            
+            // Sidebar: Telemetry
+            "card_telemetry_title": {
+                "tr": "Sinyal Telemetrisi",
+                "en": "Signal Telemetry"
+            },
+            "lbl_transmitter_status": {
+                "tr": "Verici Durumu",
+                "en": "Transmitter Status"
+            },
+            "status_loading": {
+                "tr": "YÜKLENİYOR...",
+                "en": "LOADING..."
+            },
+            "status_idle": {
+                "tr": "BOŞTA (YAYIN YOK)",
+                "en": "IDLE (NO BROADCAST)"
+            },
+            "status_active": {
+                "tr": "YAYINDA",
+                "en": "BROADCASTING"
+            },
+            "status_disconnected": {
+                "tr": "BAĞLANTI KESİLDİ",
+                "en": "DISCONNECTED"
+            },
+            "lbl_last_cmd": {
+                "tr": "Son Tetiklenen Komut",
+                "en": "Last Triggered Command"
+            },
+            "cmd_loading": {
+                "tr": "Veri yükleniyor...",
+                "en": "Loading data..."
+            },
+            "btn_stop": {
+                "tr": "Yayını Acil Durdur",
+                "en": "Emergency Stop Broadcast"
+            },
+
+            // Sidebar: Parameters
+            "card_params_title": {
+                "tr": "Yayın Parametreleri",
+                "en": "Transmission Parameters"
+            },
+            "lbl_freq": {
+                "tr": "Yayın Frekansı (MHz)",
+                "en": "Broadcast Frequency (MHz)"
+            },
+            "lbl_ps": {
+                "tr": "RDS İstasyon Kimliği (PS)",
+                "en": "RDS Station ID (PS)"
+            },
+            "lbl_rt": {
+                "tr": "RDS Detay Metni (RT)",
+                "en": "RDS Detail Text (RT)"
+            },
+            "lbl_filter": {
+                "tr": "Ses Filtre Efekti",
+                "en": "Audio Filter Effect"
+            },
+            // Options in filterSelect
+            "filter_am": {
+                "tr": "AM Telsiz Modu (Varsayılan)",
+                "en": "AM Radio Mode (Default)"
+            },
+            "filter_bunker": {
+                "tr": "Taktik Sığınak Yankısı (Echo)",
+                "en": "Tactical Bunker Echo"
+            },
+            "filter_tape": {
+                "tr": "Bant Sürüklenmesi (Tremolo)",
+                "en": "Tape Drift (Tremolo)"
+            },
+            "filter_saturate": {
+                "tr": "Sovyet Vakum Tüp Satürasyonu",
+                "en": "Soviet Vacuum Tube Saturation"
+            },
+            "filter_qsb": {
+                "tr": "İyonosferik Sinyal Dalgalanması (QSB)",
+                "en": "Ionospheric Signal Fluctuation (QSB)"
+            },
+            "filter_flutter": {
+                "tr": "Analog Bant Titremesi (Flutter)",
+                "en": "Analog Tape Flutter"
+            },
+            "filter_none": {
+                "tr": "Filtresiz (Ham Net Ses)",
+                "en": "Unfiltered (Raw Clean Audio)"
+            },
+            "lbl_noise": {
+                "tr": "Kısa Dalga Paraziti (Gürültü)",
+                "en": "Shortwave Interference (Noise)"
+            },
+            "lbl_morse_freq": {
+                "tr": "Mors Bip Frekansı (Hz)",
+                "en": "Morse Beep Frequency (Hz)"
+            },
+            "lbl_morse_speed": {
+                "tr": "Mors Bip Hızı (Word Unit)",
+                "en": "Morse Beep Speed (Word Unit)"
+            },
+
+            // Sidebar: Audio Archive
+            "card_archive_title": {
+                "tr": "Ses Deposu",
+                "en": "Audio Archive"
+            },
+            "audio_fallback": {
+                "tr": "Tarayıcınız ses çalma özelliğini desteklemiyor.",
+                "en": "Your browser does not support audio playback."
+            },
+            "btn_download_wav": {
+                "tr": "WAV Dosyasını İndir",
+                "en": "Download WAV File"
+            },
+            "btn_broadcast_last": {
+                "tr": "Son Kaydı Yayınla",
+                "en": "Broadcast Last Recording"
+            },
+
+            // Main: Queue
+            "card_queue_title": {
+                "tr": "Yayın Akışı Sıralayıcı",
+                "en": "Broadcast Queue Sequencer"
+            },
+            "queue_desc": {
+                "tr": "Farklı yayın modlarını sıraya ekleyerek kesintisiz ve karmaşık yayın akışları oluşturun. Sıradaki tüm sesler birleştirilerek tek seferde yayınlanır.",
+                "en": "Build seamless and complex broadcast sequences by queuing different transmission modes. All sounds in the queue are merged and broadcast in a single run."
+            },
+            "queue_empty": {
+                "tr": "Sıra boş. Aşağıdaki panelden blok ekleyin.",
+                "en": "Queue is empty. Add blocks from the panel below."
+            },
+            "lbl_add_block_title": {
+                "tr": "Sıraya Blok Ekle",
+                "en": "Add Block to Queue"
+            },
+            "lbl_block_type": {
+                "tr": "Blok Tipi",
+                "en": "Block Type"
+            },
+            // Options in blockTypeSelect
+            "opt_type_id": {
+                "tr": "Tanıtıcı Anons (ID)",
+                "en": "Station Identification (ID)"
+            },
+            "opt_type_numbers": {
+                "tr": "Sayı Dizisi (Numbers)",
+                "en": "Numbers Sequence"
+            },
+            "opt_type_say": {
+                "tr": "Yapay Ses Metni (Say)",
+                "en": "Synthetic Voice Text (Say)"
+            },
+            "opt_type_morse": {
+                "tr": "Mors Kod Metni (Morse)",
+                "en": "Morse Code Text (Morse)"
+            },
+            "lbl_group_count": {
+                "tr": "Grup Sayısı",
+                "en": "Group Count"
+            },
+            "lbl_block_msg_text": {
+                "tr": "Blok Mesaj Metni",
+                "en": "Block Message Text"
+            },
+            "btn_add_block": {
+                "tr": "Bloğu Sıraya Ekle",
+                "en": "Add Block to Queue"
+            },
+            "btn_preview_sequence": {
+                "tr": "Sırayı Önizle",
+                "en": "Preview Sequence"
+            },
+            "btn_start_sequence": {
+                "tr": "Yayın Akışını Başlat",
+                "en": "Start Sequence Broadcast"
+            },
+            "btn_clear_sequence": {
+                "tr": "Sırayı Temizle",
+                "en": "Clear Sequence"
+            },
+
+            // Main: OTP Cipher
+            "card_otp_title": {
+                "tr": "Kriptografik Şifreleme Modülü",
+                "en": "Cryptographic Encryption Module"
+            },
+            "otp_desc": {
+                "tr": "Metin mesajlarını modulo-10 One-Time Pad şifreleme algoritması kullanarak 5'li sayı gruplarına dönüştürün. Üretilen sayıları doğrudan yayınlayabilir veya yayın sırasına ekleyebilirsiniz.",
+                "en": "Convert text messages into 5-digit number groups using the modulo-10 One-Time Pad encryption algorithm. You can directly broadcast the generated numbers or add them to the queue."
+            },
+            "lbl_otp_plaintext": {
+                "tr": "Düz Metin Mesajı (A-Z, Boşluk, Nokta, Soru İşareti, Tire)",
+                "en": "Plaintext Message (A-Z, Space, Period, Question Mark, Dash)"
+            },
+            "ph_otp_plaintext": {
+                "tr": "Şifrelenecek mesajı yazın... Örn: ORISON ACTIVE.",
+                "en": "Type message to encrypt... e.g. ORISON ACTIVE."
+            },
+            "lbl_otp_key": {
+                "tr": "Özel Anahtar Rakamları (İsteğe Bağlı - Boş bırakılırsa rastgele üretilir)",
+                "en": "Custom Key Digits (Optional - Leave blank for random)"
+            },
+            "ph_otp_key": {
+                "tr": "Sadece rakam girin...",
+                "en": "Enter digits only..."
+            },
+            "btn_encrypt_prepare": {
+                "tr": "Şifrele ve Hazırla",
+                "en": "Encrypt & Prepare"
+            },
+            "lbl_ciphertext": {
+                "tr": "ŞİFRELİ MESAJ (CIPHERTEXT)",
+                "en": "ENCRYPTED MESSAGE (CIPHERTEXT)"
+            },
+            "lbl_used_key": {
+                "tr": "ŞİFRE ANAHTARI (OTP KEY)",
+                "en": "USED KEY (OTP KEY)"
+            },
+            "btn_download_key": {
+                "tr": "Anahtarı İndir",
+                "en": "Download Key"
+            },
+            "btn_broadcast_otp": {
+                "tr": "Sayı Olarak Yayınla",
+                "en": "Broadcast as Numbers"
+            },
+            "btn_add_to_queue": {
+                "tr": "Akış Sırasına Ekle",
+                "en": "Add to Sequence Queue"
+            },
+
+            // Main: Scheduler
+            "card_scheduler_title": {
+                "tr": "Yayın Planlayıcı",
+                "en": "Broadcast Scheduler"
+            },
+            "scheduler_desc": {
+                "tr": "Belirli bir tarih ve saatte otomatik yayın yapılması için görev planlayın. Zamanlanan saat geldiğinde aktif bir yayın varsa kesilir ve zamanlanan yayın öncelikli olarak başlar.",
+                "en": "Schedule tasks for automatic broadcasts at a specific date and time. When the scheduled time arrives, any active broadcast is preempted, and the scheduled broadcast starts with high priority."
+            },
+            "lbl_sched_time": {
+                "tr": "Yayın Tarih ve Saati",
+                "en": "Broadcast Date & Time"
+            },
+            "lbl_sched_content": {
+                "tr": "Yayınlanacak İçerik",
+                "en": "Content to Broadcast"
+            },
+            "opt_sched_sequence": {
+                "tr": "Mevcut Sıralı Yayın Akışı (Current Playlist)",
+                "en": "Current Playlist Sequence"
+            },
+            "opt_sched_say": {
+                "tr": "Tekil Yapay Ses Metni (Voice / Say)",
+                "en": "Single Synthetic Voice Text (Say)"
+            },
+            "opt_sched_morse": {
+                "tr": "Tekil Mors Kod Metni (Morse)",
+                "en": "Single Morse Code Text"
+            },
+            "lbl_sched_msg_text": {
+                "tr": "Mesaj Metni",
+                "en": "Message Text"
+            },
+            "ph_sched_msg_text": {
+                "tr": "Yayınlanacak metni buraya yazın...",
+                "en": "Enter text to broadcast..."
+            },
+            "btn_sched_action": {
+                "tr": "Yayın Zamanla",
+                "en": "Schedule Broadcast"
+            },
+            "lbl_sched_list": {
+                "tr": "Zamanlanmış Yayın Listesi",
+                "en": "Scheduled Broadcasts"
+            },
+            "lbl_refresh": {
+                "tr": "Yenile",
+                "en": "Refresh"
+            },
+            "sched_loading": {
+                "tr": "Yükleniyor...",
+                "en": "Loading..."
+            },
+            "sched_empty": {
+                "tr": "Zamanlanmış veya geçmiş görev bulunmuyor.",
+                "en": "No scheduled or past tasks found."
+            },
+            "status_pending": {
+                "tr": "Bekliyor",
+                "en": "Pending"
+            },
+            "status_completed": {
+                "tr": "Tamamlandı",
+                "en": "Completed"
+            },
+            "status_failed": {
+                "tr": "Hata",
+                "en": "Failed"
+            },
+
+            // Main: Single Station Controls
+            "card_single_title": {
+                "tr": "Tekil İstasyon Kontrolleri",
+                "en": "Single Station Controls"
+            },
+            "tag_mode_id": {
+                "tr": "Mod: ID",
+                "en": "Mode: ID"
+            },
+            "lbl_station_id_title": {
+                "tr": "İstasyon Tanıtım Kodu",
+                "en": "Station ID Announcement"
+            },
+            "id_desc": {
+                "tr": "İstasyonu tanıtan standart anonsu seslendirir ve yayınlar:",
+                "en": "Plays and broadcasts the standard station identification announcement:"
+            },
+            "btn_preview": {
+                "tr": "Önizle",
+                "en": "Preview"
+            },
+            "btn_broadcast": {
+                "tr": "Yayınla",
+                "en": "Broadcast"
+            },
+            "tag_mode_numbers": {
+                "tr": "Mod: NUMBERS",
+                "en": "Mode: NUMBERS"
+            },
+            "lbl_numbers_gen_title": {
+                "tr": "Sayı Dizisi Jeneratörü",
+                "en": "Numbers Sequence Generator"
+            },
+            "numbers_desc": {
+                "tr": "Rastgele 5'li sayı grupları seslendirir. Başlangıçta \"Attention\", sonda \"End of transmission\" eklenir.",
+                "en": "Announces random 5-digit number groups. Prefixed with 'Attention' and postfixed with 'End of transmission'."
+            },
+            "tag_mode_say": {
+                "tr": "Mod: SAY",
+                "en": "Mode: SAY"
+            },
+            "lbl_synth_voice_title": {
+                "tr": "Yapay Ses Sentezleyici",
+                "en": "Synthetic Voice Synthesizer"
+            },
+            "say_desc": {
+                "tr": "Yazdığınız metni ses sentezleyici ile seslendirip yayına verir.",
+                "en": "Synthesizes the text using voice generation and broadcasts it."
+            },
+            "lbl_say_msg_text": {
+                "tr": "Mesaj Metni (İngilizce)",
+                "en": "Message Text (English)"
+            },
+            "ph_say_msg_text": {
+                "tr": "Sentezlenecek mesajı girin... Örn: The northern relay is silent.",
+                "en": "Enter text to synthesize... e.g. The northern relay is silent."
+            },
+            "btn_synth_broadcast": {
+                "tr": "Sentezle & Yayınla",
+                "en": "Synthesize & Broadcast"
+            },
+            "tag_mode_morse": {
+                "tr": "Mod: MORSE",
+                "en": "Mode: MORSE"
+            },
+            "lbl_morse_title": {
+                "tr": "Mors Kodu Vericisi",
+                "en": "Morse Code Transmitter"
+            },
+            "morse_desc": {
+                "tr": "Metni Mors koduna dönüştürür ve ses sinyali üreterek yayınlar.",
+                "en": "Converts text to Morse code and broadcasts the generated audio signal."
+            },
+            "lbl_morse_msg_text": {
+                "tr": "Mors Mesajı",
+                "en": "Morse Message"
+            },
+            "ph_morse_msg_text": {
+                "tr": "Mors koduna çevrilecek metin... Örn: ORISON ATTENTION",
+                "en": "Text to convert to Morse... e.g. ORISON ATTENTION"
+            },
+            "btn_broadcast_morse": {
+                "tr": "Morsu Yayınla",
+                "en": "Broadcast Morse"
+            },
+
+            // Main: System Logs
+            "card_logs_title": {
+                "tr": "Sistem Log Kayıtları",
+                "en": "System Logs"
+            },
+            "btn_open_full_log": {
+                "tr": "Tam Log Dosyasını Aç",
+                "en": "Open Full Log File"
+            },
+            "logs_loading": {
+                "tr": "Sistem log verileri yükleniyor...",
+                "en": "Loading system log data..."
+            },
+
+            // Toasts & JS Messages
+            "toast_action_sent": {
+                "tr": "Komut gönderildi: ",
+                "en": "Command sent: "
+            },
+            "toast_error": {
+                "tr": "İşlem sırasında hata oluştu.",
+                "en": "An error occurred during operation."
+            },
+            "toast_playlist_empty": {
+                "tr": "Oynatma listesi boş!",
+                "en": "Playlist is empty!"
+            },
+            "toast_say_empty": {
+                "tr": "Sentezlenecek metin boş olamaz!",
+                "en": "Synthesis text cannot be empty!"
+            },
+            "toast_morse_empty": {
+                "tr": "Mors metni boş olamaz!",
+                "en": "Morse text cannot be empty!"
+            },
+            "toast_otp_plain_empty": {
+                "tr": "Şifrelenecek metin boş olamaz!",
+                "en": "Plaintext to encrypt cannot be empty!"
+            },
+            "toast_otp_encrypting": {
+                "tr": "Mesaj şifreleniyor...",
+                "en": "Encrypting message..."
+            },
+            "toast_otp_success": {
+                "tr": "Şifreleme tamamlandı.",
+                "en": "Encryption completed."
+            },
+            "toast_otp_prepared": {
+                "tr": "Şifreli yayın hazırlandı.",
+                "en": "Encrypted broadcast prepared."
+            },
+            "toast_otp_added": {
+                "tr": "Şifreli blok listeye eklendi.",
+                "en": "Encrypted block added to list."
+            },
+            "toast_otp_no_cipher": {
+                "tr": "Lütfen önce metni şifreleyin!",
+                "en": "Please encrypt the message first!"
+            },
+            "toast_sched_time_empty": {
+                "tr": "Lütfen geçerli bir tarih ve saat seçin!",
+                "en": "Please select a valid date and time!"
+            },
+            "toast_sched_text_empty": {
+                "tr": "Zamanlanan yayın için mesaj metni boş olamaz!",
+                "en": "Message text for scheduled broadcast cannot be empty!"
+            },
+            "toast_sched_success": {
+                "tr": "Yayın başarıyla zamanlandı.",
+                "en": "Broadcast successfully scheduled."
+            },
+            "toast_sched_deleted": {
+                "tr": "Görev iptal edildi.",
+                "en": "Task cancelled."
+            },
+            "toast_block_added": {
+                "tr": "Blok listeye eklendi.",
+                "en": "Block added to list."
+            },
+            "toast_queue_cleared": {
+                "tr": "Yayın sırası temizlendi.",
+                "en": "Broadcast queue cleared."
+            },
+            "toast_numbers_broadcast": {
+                "tr": "Sayı dizisi yayını tetiklendi.",
+                "en": "Numbers sequence broadcast triggered."
+            },
+            "load_failed": {
+                "tr": "Yükleme başarısız",
+                "en": "Load failed"
+            },
+            "network_error": {
+                "tr": "Ağ hatası",
+                "en": "Network error"
+            },
+            "param_error": {
+                "tr": "Parametre hatası",
+                "en": "Parameter error"
+            },
+            "none": {
+                "tr": "Yok",
+                "en": "None"
+            },
+            "cancel_task": {
+                "tr": "Görevi İptal Et",
+                "en": "Cancel Task"
+            },
+            
+            // Playlist & Scheduler dynamic previews
+            "preview_id": {
+                "tr": "Tanıtım anonsu çalınır.",
+                "en": "Station ID announcement will play."
+            },
+            "preview_otp_ciphertext": {
+                "tr": "Şifreli Sayı Grubu",
+                "en": "Encrypted Number Group"
+            },
+            "preview_numbers": {
+                "tr": " adet rastgele sayı grubu okunur.",
+                "en": " random number groups will be announced."
+            },
+            "preview_say": {
+                "tr": "metni seslendirilir.",
+                "en": "text will be synthesized as voice."
+            },
+            "preview_morse": {
+                "tr": "metni Mors biplemesine çevrilir.",
+                "en": "text will be transmitted in Morse code."
+            },
+            "title_delete_block": {
+                "tr": "Bloğu Sil",
+                "en": "Delete Block"
+            },
+            "sched_type_sequence": {
+                "tr": "Sıralı Akış",
+                "en": "Sequence Playlist"
+            },
+            "sched_type_say": {
+                "tr": "Yapay Ses",
+                "en": "Synthetic Voice"
+            },
+            "sched_type_morse": {
+                "tr": "Mors Kod",
+                "en": "Morse Code"
+            },
+            "sched_unit_blocks": {
+                "tr": "blok",
+                "en": "blocks"
+            }
+        };
+
+        let currentLang = localStorage.getItem("orison_lang") || "tr";
+
+        function t(key) {
+            if (translations[key] && translations[key][currentLang]) {
+                return translations[key][currentLang];
+            }
+            return key;
+        }
+
+        function applyTranslations() {
+            // Translate elements with data-i18n
+            document.querySelectorAll("[data-i18n]").forEach(el => {
+                const key = el.getAttribute("data-i18n");
+                el.textContent = t(key);
+            });
+
+            // Translate placeholder attributes
+            document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+                const key = el.getAttribute("data-i18n-placeholder");
+                el.setAttribute("placeholder", t(key));
+            });
+
+            // Update active state in language buttons
+            const btnTr = document.getElementById("btnLangTr");
+            const btnEn = document.getElementById("btnLangEn");
+            if (btnTr && btnEn) {
+                if (currentLang === "tr") {
+                    btnTr.classList.add("active");
+                    btnEn.classList.remove("active");
+                } else {
+                    btnTr.classList.remove("active");
+                    btnEn.classList.add("active");
+                }
+            }
+
+            // Update dynamically rendered sections
+            renderPlaylistQueue();
+            loadSchedules();
+        }
+
+        function switchLang(lang) {
+            currentLang = lang;
+            localStorage.setItem("orison_lang", lang);
+            applyTranslations();
+        }
+
+        // Initialize translation apply on load
+        document.addEventListener("DOMContentLoaded", () => {
+            applyTranslations();
+        });
+
         const statusBox = document.getElementById("statusBox");
         const statusText = document.getElementById("statusText");
         const lastCmd = document.getElementById("lastCmd");
@@ -1521,7 +2163,7 @@
             }
 
             setControlsDisabled(true);
-            showToast(`İşlem başlatıldı: ${actionName.toUpperCase()}`);
+            showToast(t("toast_action_sent") + actionName.toUpperCase());
 
             fetch("/action", {
                 method: "POST",
@@ -1537,7 +2179,7 @@
                 }
             })
             .catch(err => {
-                showToast(`Hata Oluştu: ${err.message}`, "error");
+                showToast(t("toast_error") + `: ${err.message}`, "error");
                 setControlsDisabled(false);
             });
         }
@@ -1551,7 +2193,7 @@
         function triggerSay(isMakeOnly) {
             const text = document.getElementById("sayText").value.trim();
             if (!text) {
-                showToast("Lütfen seslendirilecek bir metin yazın.", "error");
+                showToast(t("toast_say_empty"), "error");
                 return;
             }
             const action = isMakeOnly ? "make_say" : "say";
@@ -1561,7 +2203,8 @@
         function triggerMorse(isMakeOnly) {
             let text = document.getElementById("morseText").value.trim();
             if (!text) {
-                text = "ORISON ATTENTION";
+                showToast(t("toast_morse_empty"), "error");
+                return;
             }
             const action = isMakeOnly ? "make_morse" : "morse";
             sendAction(action, { text: text });
@@ -1605,17 +2248,17 @@
 
                 let previewText = "";
                 if (block.type === "id") {
-                    previewText = "Tanıtım anonsu çalınır.";
+                    previewText = t("preview_id");
                 } else if (block.type === "numbers") {
                     if (block.groups) {
-                        previewText = `Şifreli Sayı Grubu: [ ${block.groups} ]`;
+                        previewText = `${t("preview_otp_ciphertext")}: [ ${block.groups} ]`;
                     } else {
-                        previewText = `${block.count} adet rastgele sayı grubu okunur.`;
+                        previewText = `${block.count}${t("preview_numbers")}`;
                     }
                 } else if (block.type === "say") {
-                    previewText = `"${block.text}" metni seslendirilir.`;
+                    previewText = `"${block.text}" ${t("preview_say")}`;
                 } else if (block.type === "morse") {
-                    previewText = `"${block.text}" metni Mors biplemesine çevrilir.`;
+                    previewText = `"${block.text}" ${t("preview_morse")}`;
                 }
 
                 item.innerHTML = `
@@ -1626,7 +2269,7 @@
                             <span class="playlist-item-preview">${previewText}</span>
                         </div>
                     </div>
-                    <button class="playlist-item-delete" onclick="removeBlockFromPlaylist(${idx})" title="Bloğu Sil">
+                    <button class="playlist-item-delete" onclick="removeBlockFromPlaylist(${idx})" title="${t("title_delete_block")}">
                         <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                     </button>
                 `;
@@ -1642,34 +2285,38 @@
                 newBlock["count"] = parseInt(document.getElementById("blockNumbersCount").value);
             } else if (type === "say" || type === "morse") {
                 const text = document.getElementById("blockTextPayload").value.trim();
-                if (!text && type === "say") {
-                    showToast("Seslendirilecek metni girmelisiniz.", "error");
+                if (!text) {
+                    if (type === "say") {
+                        showToast(t("toast_say_empty"), "error");
+                    } else {
+                        showToast(t("toast_morse_empty"), "error");
+                    }
                     return;
                 }
-                newBlock["text"] = text || "ORISON ATTENTION";
+                newBlock["text"] = text;
             }
 
             playlist.push(newBlock);
             document.getElementById("blockTextPayload").value = ""; // reset METİN
             renderPlaylistQueue();
-            showToast("Blok sıraya eklendi.", "success");
+            showToast(t("toast_block_added"), "success");
         }
 
         function removeBlockFromPlaylist(index) {
             playlist.splice(index, 1);
             renderPlaylistQueue();
-            showToast("Blok sıradan çıkarıldı.", "info");
+            showToast(t("toast_block_removed"), "info");
         }
 
         function clearPlaylistQueue() {
             playlist = [];
             renderPlaylistQueue();
-            showToast("Yayın akış sırası temizlendi.", "info");
+            showToast(t("toast_queue_cleared"), "info");
         }
 
         function broadcastSequence(broadcast = true) {
             if (playlist.length === 0) {
-                showToast("Lütfen yayın akışına en az bir blok ekleyin.", "error");
+                showToast(t("toast_playlist_empty"), "error");
                 return;
             }
 
@@ -1686,7 +2333,7 @@
             };
 
             setControlsDisabled(true);
-            showToast(broadcast ? "Sıralı yayın akışı derleniyor..." : "Sıralı yayın önizlemesi hazırlanıyor...");
+            showToast(broadcast ? t("toast_seq_compiling") : t("toast_seq_previewing"));
 
             fetch("/action_sequence", {
                 method: "POST",
@@ -1705,7 +2352,7 @@
                 }
             })
             .catch(err => {
-                showToast(`Ağ Hatası: ${err.message}`, "error");
+                showToast(t("network_error") + `: ${err.message}`, "error");
                 setControlsDisabled(false);
             });
         }
@@ -1743,18 +2390,18 @@
 
                 if (currentStatus === "Active") {
                     statusBox.classList.add("active");
-                    statusText.textContent = "YAYINDA";
+                    statusText.textContent = t("status_active");
                     if (lastStatus === "Idle") {
                         playPreview();
                     }
                 } else {
                     statusBox.classList.remove("active");
-                    statusText.textContent = "BOŞTA (YAYIN YOK)";
+                    statusText.textContent = t("status_idle");
                 }
 
                 lastStatus = currentStatus;
 
-                lastCmd.textContent = data.last_cmd || "Yok";
+                lastCmd.textContent = data.last_cmd || t("none");
 
                 if (data.wav_exists) {
                     btnDownload.classList.remove("disabled");
@@ -1784,7 +2431,7 @@
             .catch(err => {
                 console.error("Telemetri bağlantı hatası: ", err);
                 statusBox.classList.remove("active");
-                statusText.textContent = "BAĞLANTI KESİLDİ";
+                statusText.textContent = t("status_disconnected");
             });
         }
 
@@ -1819,13 +2466,13 @@
             const textPayload = document.getElementById("schedTextPayload").value;
             
             if (!timeInput.value) {
-                showToast("Lütfen geçerli bir tarih ve saat seçin.", "error");
+                showToast(t("toast_sched_time_empty"), "error");
                 return;
             }
             
             const schedDate = new Date(timeInput.value);
             if (schedDate <= new Date()) {
-                showToast("Zamanlanmış vakit geçmişte olamaz.", "error");
+                showToast(t("toast_sched_time_past"), "error");
                 return;
             }
             
@@ -1842,19 +2489,19 @@
             
             if (actionType === "sequence") {
                 if (playlist.length === 0) {
-                    showToast("Planlanacak yayın sırası boş! Önce yukarıdaki panelden en az bir blok ekleyin.", "error");
+                    showToast(t("toast_sched_seq_empty"), "error");
                     return;
                 }
                 params.sequence = playlist;
             } else if (actionType === "say" || actionType === "morse") {
                 if (!textPayload.trim()) {
-                    showToast("Lütfen yayınlanacak mesaj metnini yazın.", "error");
+                    showToast(t("toast_sched_text_empty"), "error");
                     return;
                 }
                 params.text = textPayload;
             }
             
-            showToast("Görev zamanlanıyor...");
+            showToast(t("toast_sched_saving"));
             
             fetch("/api/schedules/add", {
                 method: "POST",
@@ -1870,7 +2517,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    showToast(data.message, "success");
+                    showToast(t("toast_sched_success"), "success");
                     document.getElementById("schedTextPayload").value = "";
                     loadSchedules();
                 } else {
@@ -1878,28 +2525,28 @@
                 }
             })
             .catch(err => {
-                showToast(`Zamanlama hatası: ${err.message}`, "error");
+                showToast(t("toast_sched_error") + `: ${err.message}`, "error");
             });
         }
 
         function deleteSchedule(id) {
-            if (!confirm("Bu zamanlanmış görevi iptal etmek istediğinize emin misiniz?")) return;
+            if (!confirm(t("confirm_delete_sched"))) return;
             
-            showToast("Görev iptal ediliyor...");
+            showToast(t("toast_sched_deleting"));
             fetch(`/api/schedules/delete/${id}`, {
                 method: "POST"
             })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    showToast(data.message, "success");
+                    showToast(t("toast_sched_deleted"), "success");
                     loadSchedules();
                 } else {
                     showToast(data.message, "error");
                 }
             })
             .catch(err => {
-                showToast(`İptal hatası: ${err.message}`, "error");
+                showToast(t("toast_cancel_error") + `: ${err.message}`, "error");
             });
         }
 
@@ -1910,7 +2557,7 @@
             .then(res => res.json())
             .then(data => {
                 if (!data.success) {
-                    listContainer.innerHTML = `<div style="font-size: 0.75rem; color: var(--accent-red); text-align: center; margin-top: 2rem;">Yükleme başarısız: ${data.message}</div>`;
+                    listContainer.innerHTML = `<div style="font-size: 0.75rem; color: var(--accent-red); text-align: center; margin-top: 2rem;">${t("load_failed")}: ${data.message}</div>`;
                     return;
                 }
                 
@@ -1918,7 +2565,7 @@
                 const history = data.history || [];
                 
                 if (pending.length === 0 && history.length === 0) {
-                    listContainer.innerHTML = `<div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 2rem;">Zamanlanmış veya geçmiş görev bulunmuyor.</div>`;
+                    listContainer.innerHTML = `<div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 2rem;">${t("sched_empty")}</div>`;
                     return;
                 }
                 
@@ -1931,18 +2578,18 @@
                     try {
                         const params = JSON.parse(item.params);
                         if (item.action_type === "sequence") {
-                            actionLabel = "Sıralı Akış";
-                            detailLabel = `${params.sequence ? params.sequence.length : 0} blok (${params.freq} MHz)`;
+                            actionLabel = t("sched_type_sequence");
+                            detailLabel = `${params.sequence ? params.sequence.length : 0} ${t("sched_unit_blocks")} (${params.freq} MHz)`;
                         } else if (item.action_type === "say") {
-                            actionLabel = "Yapay Ses";
+                            actionLabel = t("sched_type_say");
                             detailLabel = `"${params.text}" (${params.freq} MHz)`;
                         } else if (item.action_type === "morse") {
-                            actionLabel = "Mors Kod";
+                            actionLabel = t("sched_type_morse");
                             detailLabel = `"${params.text}" (${params.freq} MHz)`;
                         }
                     } catch(e) {
                         actionLabel = item.action_type.toUpperCase();
-                        detailLabel = "Parametre hatası";
+                        detailLabel = t("param_error");
                     }
                     
                     html += `
@@ -1954,8 +2601,8 @@
                                 </span>
                             </div>
                             <div class="schedule-actions">
-                                <span class="badge badge-pending">Bekliyor</span>
-                                <button class="btn-icon" onclick="deleteSchedule(${item.id})" title="Görevi İptal Et">
+                                <span class="badge badge-pending">${t("status_pending")}</span>
+                                <button class="btn-icon" onclick="deleteSchedule(${item.id})" title="${t("cancel_task")}">
                                     <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1-1H5v2h14V4z"/></svg>
                                 </button>
                             </div>
@@ -1970,13 +2617,13 @@
                     try {
                         const params = JSON.parse(item.params);
                         if (item.action_type === "sequence") {
-                            actionLabel = "Sıralı Akış";
-                            detailLabel = `${params.sequence ? params.sequence.length : 0} blok`;
+                            actionLabel = t("sched_type_sequence");
+                            detailLabel = `${params.sequence ? params.sequence.length : 0} ${t("sched_unit_blocks")}`;
                         } else if (item.action_type === "say") {
-                            actionLabel = "Yapay Ses";
+                            actionLabel = t("sched_type_say");
                             detailLabel = `"${params.text}"`;
                         } else if (item.action_type === "morse") {
-                            actionLabel = "Mors Kod";
+                            actionLabel = t("sched_type_morse");
                             detailLabel = `"${params.text}"`;
                         }
                     } catch(e) {
@@ -1985,7 +2632,7 @@
                     }
                     
                     const badgeClass = item.status === "completed" ? "badge-completed" : "badge-failed";
-                    const badgeLabel = item.status === "completed" ? "Tamamlandı" : "Hata";
+                    const badgeLabel = item.status === "completed" ? t("status_completed") : t("status_failed");
                     
                     html += `
                         <div class="schedule-item" style="opacity: 0.6;">
@@ -2005,7 +2652,7 @@
                 listContainer.innerHTML = html;
             })
             .catch(err => {
-                listContainer.innerHTML = `<div style="font-size: 0.75rem; color: var(--accent-red); text-align: center; margin-top: 2rem;">Ağ hatası: ${err.message}</div>`;
+                listContainer.innerHTML = `<div style="font-size: 0.75rem; color: var(--accent-red); text-align: center; margin-top: 2rem;">${t("network_error")}: ${err.message}</div>`;
             });
         }
 
@@ -2021,11 +2668,11 @@
             const key = customKeyEl.value.trim();
             
             if (!text) {
-                showToast("Lütfen şifrelenecek bir mesaj yazın.", "error");
+                showToast(t("toast_otp_plain_empty"), "error");
                 return;
             }
             
-            showToast("Mesaj şifreleniyor...");
+            showToast(t("toast_otp_encrypting"));
             
             fetch("/api/otp/encrypt", {
                 method: "POST",
@@ -2053,19 +2700,19 @@
                     // Display panel
                     resultPanel.style.display = "flex";
                     
-                    showToast("Şifreleme tamamlandı. Telsiz yayına hazır.", "success");
+                    showToast(t("toast_otp_success"), "success");
                 } else {
                     showToast(data.message, "error");
                 }
             })
             .catch(err => {
-                showToast(`Şifreleme hatası: ${err.message}`, "error");
+                showToast(t("toast_otp_error") + `: ${err.message}`, "error");
             });
         }
 
         function broadcastOTP() {
             if (!lastEncryptedCiphertext) {
-                showToast("Lütfen önce şifrelenmiş bir mesaj üretin.", "error");
+                showToast(t("toast_otp_no_cipher"), "error");
                 return;
             }
             
@@ -2089,7 +2736,7 @@
             formData.append("freq", freq);
             
             setControlsDisabled(true);
-            showToast("Şifreli sayı telsizi yayını başlatılıyor...");
+            showToast(t("toast_otp_broadcasting"));
             
             fetch("/action", {
                 method: "POST",
@@ -2102,14 +2749,14 @@
                 updateStatus();
             })
             .catch(err => {
-                showToast(`Yayın hatası: ${err.message}`, "error");
+                showToast(t("toast_broadcast_error") + `: ${err.message}`, "error");
                 setControlsDisabled(false);
             });
         }
 
         function addOTPToSequence() {
             if (!lastEncryptedCiphertext) {
-                showToast("Lütfen önce şifrelenmiş bir mesaj üretin.", "error");
+                showToast(t("toast_otp_no_cipher"), "error");
                 return;
             }
             
@@ -2119,7 +2766,7 @@
             });
             
             renderPlaylistQueue();
-            showToast("Şifreli sayı grubu yayın akışına eklendi.", "success");
+            showToast(t("toast_otp_added"), "success");
         }
 
         // Initialize block inputs visibility
