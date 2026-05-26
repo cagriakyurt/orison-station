@@ -24,7 +24,7 @@ Based on the **PiFmRds** core, this project adds advanced text-to-speech voice g
 - **Shortwave Interference (Noise):** Tactical background noise mixing white noise and 50Hz power grid hum.
 - **Morse Code Transmitter:** Dynamically converts text to Morse code and broadcasts it using custom beep frequencies and speed options.
 - **Broadcast Queue Sequencer:** Chain station IDs, Morse code sequences, and synthetic voice text blocks to build seamless and automated playlists.
-- **PWA (Progressive Web App) Support:** Can be installed on Android/iOS via Chrome or Safari as a standalone full-screen tactical application (including custom launcher icon).
+- **PWA (Progressive Web App) Support:** Can be installed on Android/iOS via Chrome or Safari as a standalone full-screen tactical application.
 
 ---
 
@@ -217,7 +217,7 @@ Bu proje, **PiFmRds** çekirdeğini taban alarak üzerine gelişmiş ses sentezl
 - **Kısa Dalga Paraziti (Gürültü):** Beyaz gürültü ve 50Hz şebeke uğultusu mikslenmiş taktiksel arka plan paraziti.
 - **Mors Kodu Vericisi:** Girilen metinleri dinamik olarak Mors koduna dönüştürüp, seçilen ton frekansı ve hız değerinde yayınlama.
 - **Yayın Akışı Sıralayıcı (Sequence Builder):** Tanıtım anonslarını, mors kodlarını, yapay ses metinlerini sıraya ekleyerek kesintisiz ve sıralı çalma listeleri oluşturma.
-- **PWA (Progressive Web App) Desteği:** Chrome veya Safari üzerinden Android/iOS cihazlara tam ekran, bağımsız bir mobil uygulama (ikonu ile birlikte) olarak yüklenebilme.
+- **PWA (Progressive Web App) Desteği:** Chrome veya Safari üzerinden Android/iOS cihazlara tam ekran, bağımsız bir mobil uygulama olarak yüklenebilme.
 
 ---
 
