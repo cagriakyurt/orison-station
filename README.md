@@ -186,6 +186,6 @@ git pull
 
 ## 👨‍💻 Developer Information
 
-This project was built and developed using **Google Antigravity**, an agentic AI coding assistant designed by Google DeepMind.
+This project was built and developed by [@lunchweek](https://x.com/lunchweek) using **Google Antigravity**, an agentic AI coding assistant designed by Google DeepMind.
 
 
