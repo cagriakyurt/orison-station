@@ -2176,6 +2176,14 @@
 
         // Sequence playlist queue memory
         let playlist = [];
+        try {
+            const savedPlaylist = localStorage.getItem("orison_playlist");
+            if (savedPlaylist) {
+                playlist = JSON.parse(savedPlaylist);
+            }
+        } catch (e) {
+            console.error("Error loading saved playlist:", e);
+        }
 
         function updateFreqDisplay(val) {
             document.getElementById('broadcastFreqVal').textContent = val;
@@ -2285,6 +2293,12 @@
         let draggedIdx = null;
 
         function renderPlaylistQueue() {
+            try {
+                localStorage.setItem("orison_playlist", JSON.stringify(playlist));
+            } catch (e) {
+                console.error("Error saving playlist:", e);
+            }
+
             const container = document.getElementById("playlistQueue");
             const emptyEl = document.getElementById("playlistEmpty");
             
