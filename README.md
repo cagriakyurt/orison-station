@@ -22,9 +22,12 @@ Based on the **PiFmRds** core, this project adds text-to-speech voice generation
 - **Espionage-Grade OTP Cipher:** Modulo-10 encryption to secure voice numbers station broadcasts with a downloadable key sheet.
 - **Automated Broadcast Scheduler:** Embedded SQLite-backed scheduler that runs pre-planned transmissions at specified dates/times.
 - **Tactical Audio Filters:**
+  - *Soviet Vacuum Tube Saturation (Default):* Warm harmonic tube saturation overlay.
   - *AM Radio Mode:* Standard military radio band simulation (bandpass filter).
-  - *Bunker Echo:* Underground bunker simulation using reverb effects.
+  - *Tactical Bunker Echo:* Underground bunker simulation using reverb effects.
   - *Tape Drift:* Vintage tape deck simulation using tremolo effects.
+  - *Ionospheric Signal Fluctuation (QSB):* Dynamic shortwave signal fade-in/fade-out simulation.
+  - *Analog Tape Flutter:* Low-fidelity tape deck speed wobbles.
   - *Raw Clean Audio:* Unfiltered clean audio output.
 - **Shortwave Interference (Noise):** Tactical background noise mixing white noise and 50Hz power grid hum.
 - **Morse Code Transmitter:** Dynamically converts text to Morse code and broadcasts it using custom beep frequencies and speed options.
