@@ -166,6 +166,7 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
     """Shared helper function to compile a sequence of WAV parts and merge them with dynamic effects."""
     temp_files = []
     success = True
+    cancelled = False
     
     # 1. Compile each part using `orison make`
     for idx, item in enumerate(sequence):
@@ -173,6 +174,7 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
             if log_file:
                 log_file.write("  Aborting compilation: Cancelled by operator.\n")
             success = False
+            cancelled = True
             break
             
         item_type = item.get("type")
@@ -214,6 +216,8 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
             if os.path.exists(f):
                 try: os.remove(f)
                 except OSError: pass
+        if cancelled:
+            return False, "Segment compilation cancelled."
         return False, "Segment compilation failed."
         
     # 2. Append the 30-second silent tail to the end
