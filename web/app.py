@@ -25,6 +25,7 @@ DB_PATH = os.path.join(BASE_DIR, "orison.db")
 
 ORISON_BIN = "/usr/local/bin/orison"
 BROADCAST_BIN = "/usr/local/bin/orison-broadcast"
+broadcast_cancelled = False
 
 # Ensure directories exist
 os.makedirs(TMP_DIR, exist_ok=True)
@@ -168,6 +169,12 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
     
     # 1. Compile each part using `orison make`
     for idx, item in enumerate(sequence):
+        if broadcast_cancelled:
+            if log_file:
+                log_file.write("  Aborting compilation: Cancelled by operator.\n")
+            success = False
+            break
+            
         item_type = item.get("type")
         part_path = os.path.join(TMP_DIR, f"part_{idx}.wav")
         
@@ -280,15 +287,28 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
 
 def compile_and_broadcast_sequence_thread(sequence, ps, rt, noise, filter_mode, morse_freq, morse_speed, freq):
     """Wrapper function to compile sequence and then broadcast it asynchronously in a background thread."""
+    global broadcast_cancelled
     trim_logs()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_file = open(ACTIONS_LOG, "a")
     log_file.write(f"[{timestamp}] BACKGROUND SEQUENCE BROADCAST: Commencing playlist compilation...\n")
     log_file.flush()
     
+    if broadcast_cancelled:
+        log_file.write("  Aborting: Cancelled by operator.\n")
+        log_file.write("--------------------------------------------------\n")
+        log_file.close()
+        return
+        
     success, msg = compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_file)
     if not success:
         log_file.write(f"  Aborting broadcast: {msg}\n")
+        log_file.write("--------------------------------------------------\n")
+        log_file.close()
+        return
+        
+    if broadcast_cancelled:
+        log_file.write("  Aborting broadcast: Cancelled by operator during compilation.\n")
         log_file.write("--------------------------------------------------\n")
         log_file.close()
         return
@@ -308,6 +328,8 @@ def compile_and_broadcast_sequence_thread(sequence, ps, rt, noise, filter_mode, 
 
 def execute_schedule_broadcast(action_type, params):
     """Executes a scheduled broadcast, first preempting any currently active broadcast."""
+    global broadcast_cancelled
+    broadcast_cancelled = False
     trim_logs()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_file = open(ACTIONS_LOG, "a")
@@ -316,8 +338,8 @@ def execute_schedule_broadcast(action_type, params):
 
     # Preemption: stop running broadcast processes
     subprocess.run(["sudo", "/usr/local/bin/orison-stop"])
-    subprocess.run(["pkill", "-f", "orison-broadcast"])
-    subprocess.run(["pkill", "-f", "orison"])
+    subprocess.run(["pkill", "-f", "/usr/local/bin/orison-broadcast"])
+    subprocess.run(["pkill", "-f", "/usr/local/bin/orison"])
 
     # Extract parameters
     ps = params.get("ps", "ORISON").strip()
@@ -461,9 +483,16 @@ def index():
 
 @app.route("/action", methods=["POST"])
 def trigger_action():
+    global broadcast_cancelled
     action = request.form.get("action")
     if not action:
         return jsonify({"success": False, "message": "No action provided."}), 400
+        
+    # Set/reset global broadcast_cancelled flag
+    if action == "stop":
+        broadcast_cancelled = True
+    else:
+        broadcast_cancelled = False
         
     success = False
     message = ""
@@ -518,8 +547,8 @@ def trigger_action():
     # 1. Broadcaster Stop Command
     if action == "stop":
         run_sync(["sudo", "/usr/local/bin/orison-stop"])
-        run_sync(["pkill", "-f", "orison-broadcast"])
-        run_sync(["pkill", "-f", "orison"])
+        run_sync(["pkill", "-f", "/usr/local/bin/orison-broadcast"])
+        run_sync(["pkill", "-f", "/usr/local/bin/orison"])
         success = True
         message = "Broadcast stopped."
         
@@ -656,6 +685,7 @@ def trigger_sequence():
         morse_speed = "0.09"
 
     if broadcast:
+        broadcast_cancelled = False
         # Start dynamic compilation and broadcast thread (non-blocking)
         threading.Thread(
             target=compile_and_broadcast_sequence_thread,
