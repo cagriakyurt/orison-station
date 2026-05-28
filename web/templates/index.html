@@ -2150,6 +2150,13 @@
         }
 
         function sendAction(actionName, params = {}) {
+            if (actionName === "stop") {
+                const player = document.getElementById("audioPlayer");
+                if (player) {
+                    player.pause();
+                    player.currentTime = 0;
+                }
+            }
             // Apply global tuning parameters to all actions automatically
             params["ps"] = document.getElementById("rdsPs").value;
             params["rt"] = document.getElementById("rdsRt").value;
@@ -2400,6 +2407,13 @@
                 } else {
                     statusBox.classList.remove("active");
                     statusText.textContent = t("status_idle");
+                    if (lastStatus === "Active") {
+                        const player = document.getElementById("audioPlayer");
+                        if (player) {
+                            player.pause();
+                            player.currentTime = 0;
+                        }
+                    }
                 }
 
                 lastStatus = currentStatus;
