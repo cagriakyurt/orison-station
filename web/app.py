@@ -114,13 +114,18 @@ def run_sync(cmd):
     cmd_str = " ".join(cmd)
     try:
         res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=25)
-        log_entry = (
-            f"[{timestamp}] ACTION: {cmd_str}\n"
-            f"  Status: SUCCESS (exit code {res.returncode})\n"
-            f"  Stdout:\n{res.stdout}\n"
-            f"  Stderr:\n{res.stderr}\n"
-            "--------------------------------------------------\n"
-        )
+        status_str = "SUCCESS" if res.returncode == 0 else "FAILED"
+        log_lines = [
+            f"[{timestamp}] ACTION: {cmd_str}",
+            f"  Status: {status_str} (exit code {res.returncode})"
+        ]
+        if res.stdout.strip():
+            log_lines.append(f"  Stdout:\n{res.stdout.rstrip()}")
+        if res.stderr.strip():
+            log_lines.append(f"  Stderr:\n{res.stderr.rstrip()}")
+        log_lines.append("--------------------------------------------------\n")
+        
+        log_entry = "\n".join(log_lines)
         with open(ACTIONS_LOG, "a") as f:
             f.write(log_entry)
         return res.returncode == 0, res.stdout + "\n" + res.stderr
