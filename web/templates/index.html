@@ -687,6 +687,37 @@
             border-radius: 6px;
             padding: 0.75rem 1rem;
             animation: slideInBlock 0.2s ease forwards;
+            cursor: grab;
+            transition: transform 0.2s, background-color 0.2s, border-color 0.2s, opacity 0.2s;
+        }
+
+        .playlist-item.dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+            background: rgba(0, 240, 255, 0.05);
+            border-style: dashed;
+        }
+
+        .playlist-item.drag-over {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            transform: scale(0.98);
+        }
+
+        .playlist-item-drag-handle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            padding-right: 4px;
+        }
+
+        .playlist-item-drag-handle svg {
+            transition: fill 0.2s;
+        }
+
+        .playlist-item:hover .playlist-item-drag-handle svg {
+            fill: rgba(0, 240, 255, 0.7) !important;
         }
 
         @keyframes slideInBlock {
@@ -2013,6 +2044,10 @@
                 "tr": "Yayın akışı önizlemesi hazırlanıyor...",
                 "en": "Preparing broadcast sequence preview..."
             },
+            "drag_to_reorder": {
+                "tr": "Sıralamayı değiştirmek için sürükleyin",
+                "en": "Drag to reorder"
+            },
             "load_failed": {
                 "tr": "Yükleme başarısız",
                 "en": "Load failed"
@@ -2247,6 +2282,8 @@
             }
         }
 
+        let draggedIdx = null;
+
         function renderPlaylistQueue() {
             const container = document.getElementById("playlistQueue");
             const emptyEl = document.getElementById("playlistEmpty");
@@ -2264,6 +2301,46 @@
             playlist.forEach((block, idx) => {
                 const item = document.createElement("div");
                 item.className = "playlist-item";
+                item.setAttribute("draggable", "true");
+
+                // Drag & Drop Event Listeners
+                item.addEventListener("dragstart", (e) => {
+                    draggedIdx = idx;
+                    item.classList.add("dragging");
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", idx);
+                });
+
+                item.addEventListener("dragend", () => {
+                    item.classList.remove("dragging");
+                    draggedIdx = null;
+                    container.querySelectorAll(".playlist-item").forEach(el => {
+                        el.classList.remove("drag-over");
+                    });
+                });
+
+                item.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    if (draggedIdx !== null && draggedIdx !== idx) {
+                        e.dataTransfer.dropEffect = "move";
+                        item.classList.add("drag-over");
+                    }
+                });
+
+                item.addEventListener("dragleave", () => {
+                    item.classList.remove("drag-over");
+                });
+
+                item.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    item.classList.remove("drag-over");
+                    if (draggedIdx !== null && draggedIdx !== idx) {
+                        // Move the item in the array
+                        const draggedItem = playlist.splice(draggedIdx, 1)[0];
+                        playlist.splice(idx, 0, draggedItem);
+                        renderPlaylistQueue();
+                    }
+                });
 
                 let previewText = "";
                 if (block.type === "id") {
@@ -2282,6 +2359,9 @@
 
                 item.innerHTML = `
                     <div class="playlist-item-left">
+                        <div class="playlist-item-drag-handle" title="${t("drag_to_reorder")}">
+                            <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: rgba(255, 255, 255, 0.25);"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </div>
                         <div class="playlist-item-index">${idx + 1}</div>
                         <div class="playlist-item-details">
                             <span class="playlist-item-type">${block.type}</span>
