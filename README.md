@@ -4,7 +4,7 @@
 
 ORISON is a modern, PWA-supported web control terminal that gives users the opportunity to set up their own personal numbers station over FM, enabling a Raspberry Pi to broadcast FM signals and transmit dynamic RDS (Radio Data System) data directly via its GPIO pins using hardware DMA (Direct Memory Access).
 
-Based on the **PiFmRds** core, this project adds advanced text-to-speech voice generation, a Morse code generator, digital bandpass audio filter effects, and background interference/noise simulations.
+Based on the **PiFmRds** core, this project adds text-to-speech voice generation, a Morse code generator, digital bandpass audio filter effects, and background interference/noise simulations.
 
 > [!WARNING]
 > **LEGAL NOTICE:** Broadcasting on FM frequencies may be illegal in your country or region without an official license or authorization. This software is designed for educational, laboratory, and simulation purposes only. The user assumes all legal responsibility for any interference caused or regulatory compliance issues arising from the usage of this software.
