@@ -364,7 +364,7 @@ def execute_schedule_broadcast(action_type, params):
     ps = params.get("ps", "ORISON").strip()
     rt = params.get("rt", "ATTENTION").strip()
     noise = params.get("noise") == True
-    filter_mode = params.get("filter", "am").strip()
+    filter_mode = params.get("filter", "saturate").strip()
     morse_freq = str(params.get("morse_freq", "650")).strip()
     morse_speed = str(params.get("morse_speed", "0.09")).strip()
     freq = str(params.get("freq", "107.9")).strip()
@@ -520,7 +520,7 @@ def trigger_action():
     ps = request.form.get("ps", "ORISON").strip()
     rt = request.form.get("rt", "ATTENTION").strip()
     noise = request.form.get("noise") == "true"
-    filter_mode = request.form.get("filter", "am").strip()
+    filter_mode = request.form.get("filter", "saturate").strip()
     morse_freq = request.form.get("morse_freq", "650").strip()
     morse_speed = request.form.get("morse_speed", "0.09").strip()
     freq = request.form.get("freq", "107.9").strip()
@@ -671,7 +671,7 @@ def trigger_sequence():
     ps = data.get("ps", "ORISON").strip()
     rt = data.get("rt", "ATTENTION").strip()
     noise = data.get("noise") == True or data.get("noise") == "true"
-    filter_mode = data.get("filter", "am").strip()
+    filter_mode = data.get("filter", "saturate").strip()
     morse_freq = str(data.get("morse_freq", "650")).strip()
     morse_speed = str(data.get("morse_speed", "0.09")).strip()
     freq = str(data.get("freq", "107.9")).strip()
