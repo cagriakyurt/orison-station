@@ -639,6 +639,7 @@ def trigger_action():
 @app.route("/action_sequence", methods=["POST"])
 def trigger_sequence():
     """Endpoint to trigger a queued list of transmission blocks. Supports sync compile-only or async broadcast."""
+    global broadcast_cancelled
     data = request.json
     if not data or "sequence" not in data:
         return jsonify({"success": False, "message": "No sequence payload provided."}), 400
