@@ -705,9 +705,9 @@ def trigger_sequence():
         morse_speed = "0.09"
 
     lang = data.get("lang", "en").strip()
+    broadcast_cancelled = False
 
     if broadcast:
-        broadcast_cancelled = False
         # Start dynamic compilation and broadcast thread (non-blocking)
         threading.Thread(
             target=compile_and_broadcast_sequence_thread,
