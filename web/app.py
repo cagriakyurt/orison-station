@@ -202,10 +202,17 @@ def compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed, log_
             
         res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if res.returncode != 0:
-            if log_file:
-                log_file.write(f"  ERROR compiling segment {idx+1}: {res.stderr}\n")
-                log_file.flush()
-            success = False
+            if broadcast_cancelled:
+                if log_file:
+                    log_file.write(f"  Aborting compilation: Cancelled by operator during segment {idx+1}.\n")
+                    log_file.flush()
+                success = False
+                cancelled = True
+            else:
+                if log_file:
+                    log_file.write(f"  ERROR compiling segment {idx+1}: {res.stderr}\n")
+                    log_file.flush()
+                success = False
             break
         
         temp_files.append(part_path)
