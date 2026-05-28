@@ -684,6 +684,8 @@ def trigger_sequence():
     except ValueError:
         morse_speed = "0.09"
 
+    lang = data.get("lang", "en").strip()
+
     if broadcast:
         broadcast_cancelled = False
         # Start dynamic compilation and broadcast thread (non-blocking)
@@ -692,7 +694,13 @@ def trigger_sequence():
             args=(sequence, ps, rt, noise, filter_mode, morse_freq, morse_speed, freq),
             daemon=True
         ).start()
-        return jsonify({"success": True, "message": f"{len(sequence)} aşamalı yayın sırası arka planda başlatıldı."})
+        
+        if lang == "tr":
+            msg_out = f"{len(sequence)} aşamalı yayın sırası arka planda başlatıldı."
+        else:
+            msg_out = f"{len(sequence)}-stage broadcast sequence started in the background."
+            
+        return jsonify({"success": True, "message": msg_out})
     else:
         # Preview mode: compile synchronously in request thread so JavaScript receives response on completion
         success, msg = compile_sequence(sequence, noise, filter_mode, morse_freq, morse_speed)
@@ -709,7 +717,15 @@ def trigger_sequence():
         with open(ACTIONS_LOG, "a") as f:
             f.write(log_entry)
             
-        return jsonify({"success": success, "message": "Yayın sırası önizleme sesi derlendi." if success else msg})
+        if success:
+            if lang == "tr":
+                msg_out = "Yayın sırası önizleme sesi derlendi."
+            else:
+                msg_out = "Broadcast sequence preview audio compiled."
+        else:
+            msg_out = msg
+            
+        return jsonify({"success": success, "message": msg_out})
 
 @app.route("/download")
 def download_wav():
@@ -794,18 +810,22 @@ def otp_encrypt(text, key_digits=None):
 @app.route("/api/otp/encrypt", methods=["POST"])
 def api_otp_encrypt():
     data = request.json
+    lang = data.get("lang", "en").strip() if data else "en"
     if not data or "text" not in data:
-        return jsonify({"success": False, "message": "Mesaj metni gereklidir."}), 400
+        msg = "Mesaj metni gereklidir." if lang == "tr" else "Message text is required."
+        return jsonify({"success": False, "message": msg}), 400
         
     text = data.get("text", "").strip()
     key = data.get("key", "").strip()
     
     if not text:
-        return jsonify({"success": False, "message": "Mesaj metni gereklidir."}), 400
+        msg = "Mesaj metni gereklidir." if lang == "tr" else "Message text is required."
+        return jsonify({"success": False, "message": msg}), 400
         
     ciphertext, key_out = otp_encrypt(text, key)
     if not ciphertext:
-        return jsonify({"success": False, "message": "Desteklenmeyen karakterler içeren boş mesaj."}), 400
+        msg = "Desteklenmeyen karakterler içeren boş mesaj." if lang == "tr" else "Empty message with unsupported characters."
+        return jsonify({"success": False, "message": msg}), 400
         
     return jsonify({"success": True, "ciphertext": ciphertext, "key": key_out})
 
@@ -814,9 +834,11 @@ def download_otp_key():
     import io
     ciphertext = request.form.get("ciphertext", "").strip()
     key = request.form.get("key", "").strip()
+    lang = request.form.get("lang", "en").strip()
     
     if not ciphertext or not key:
-        return "Eksik parametre: ciphertext veya key bulunamadı", 400
+        msg = "Eksik parametre: ciphertext veya key bulunamadı" if lang == "tr" else "Missing parameter: ciphertext or key not found"
+        return msg, 400
         
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     content = (
@@ -871,15 +893,18 @@ def get_schedules():
 @app.route("/api/schedules/add", methods=["POST"])
 def add_schedule():
     data = request.json
+    lang = data.get("lang", "en").strip() if data else "en"
     if not data:
-        return jsonify({"success": False, "message": "No payload provided."}), 400
+        msg = "No payload provided."
+        return jsonify({"success": False, "message": msg}), 400
         
     scheduled_time_str = data.get("scheduled_time")
     action_type = data.get("action_type")
     params = data.get("params")
     
     if not scheduled_time_str or not action_type or params is None:
-        return jsonify({"success": False, "message": "Missing required fields."}), 400
+        msg = "Missing required fields."
+        return jsonify({"success": False, "message": msg}), 400
         
     try:
         if "T" in scheduled_time_str:
@@ -889,7 +914,8 @@ def add_schedule():
             
         now = datetime.datetime.now()
         if dt <= now:
-            return jsonify({"success": False, "message": "Zamanlanmış vakit geçmişte olamaz."}), 400
+            msg = "Zamanlanmış vakit geçmişte olamaz." if lang == "tr" else "Scheduled time cannot be in the past."
+            return jsonify({"success": False, "message": msg}), 400
             
         db_time_str = dt.strftime("%Y-%m-%d %H:%M:%S")
         created_at_str = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -902,12 +928,15 @@ def add_schedule():
         )
         conn.commit()
         conn.close()
-        return jsonify({"success": True, "message": "Yayın başarıyla zamanlandı."})
+        msg = "Yayın başarıyla zamanlandı." if lang == "tr" else "Broadcast scheduled successfully."
+        return jsonify({"success": True, "message": msg})
     except Exception as e:
-        return jsonify({"success": False, "message": f"Hata: {str(e)}"}), 500
+        prefix = "Hata" if lang == "tr" else "Error"
+        return jsonify({"success": False, "message": f"{prefix}: {str(e)}"}), 500
 
 @app.route("/api/schedules/delete/<int:sched_id>", methods=["POST"])
 def delete_schedule(sched_id):
+    lang = request.args.get("lang", "en").strip()
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -916,9 +945,11 @@ def delete_schedule(sched_id):
         conn.commit()
         conn.close()
         if rows_deleted > 0:
-            return jsonify({"success": True, "message": "Zamanlanmış yayın iptal edildi."})
+            msg = "Zamanlanmış yayın iptal edildi." if lang == "tr" else "Scheduled broadcast cancelled."
+            return jsonify({"success": True, "message": msg})
         else:
-            return jsonify({"success": False, "message": "Zamanlanmış yayın bulunamadı ya da zaten çalıştırıldı."}), 404
+            msg = "Zamanlanmış yayın bulunamadı ya da zaten çalıştırıldı." if lang == "tr" else "Scheduled broadcast not found or already executed."
+            return jsonify({"success": False, "message": msg}), 404
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
