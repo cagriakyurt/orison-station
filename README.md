@@ -1,6 +1,6 @@
 # ORISON // FM RDS Numbers Station & Tactical Radio Terminal
 
-![ORISON Dashboard](web/static/dashboard.png)
+![ORISON Dashboard](web/static/dashboard_en.png)
 
 ORISON is a modern, PWA-supported web control terminal that gives users the opportunity to set up their own personal numbers station over FM, enabling a Raspberry Pi to broadcast FM signals and transmit dynamic RDS (Radio Data System) data directly via its GPIO pins using hardware DMA (Direct Memory Access).
 
