@@ -114,7 +114,10 @@ def run_sync(cmd):
     cmd_str = " ".join(cmd)
     try:
         res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=25)
-        status_str = "SUCCESS" if res.returncode == 0 else "FAILED"
+        if broadcast_cancelled and any(term in cmd_str for term in ["pkill", "orison-stop"]):
+            status_str = "CANCELLED"
+        else:
+            status_str = "SUCCESS" if res.returncode == 0 else "FAILED"
         log_lines = [
             f"[{timestamp}] ACTION: {cmd_str}",
             f"  Status: {status_str} (exit code {res.returncode})"
